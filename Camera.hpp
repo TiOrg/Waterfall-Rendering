@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <glad/glad.h>
+//#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -20,7 +20,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
+const float SPEED = 8.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -74,15 +74,15 @@ public:
 		float velocity = MovementSpeed * deltaTime;
 		if (direction == FORWARD)
 			Position += Front * velocity;
-		if (direction == BACKWARD)
+		else if (direction == BACKWARD)
 			Position -= Front * velocity;
-		if (direction == LEFT)
+		else if (direction == LEFT)
 			Position -= Right * velocity;
-		if (direction == RIGHT)
+		else if (direction == RIGHT)
 			Position += Right * velocity;
-        if (direction == DOWNWORD)
+        else if (direction == DOWNWORD)
             Position -= Up * velocity;
-        if (direction == UPWORD)
+        else if (direction == UPWORD)
             Position += Up * velocity;
 	}
 
