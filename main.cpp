@@ -316,11 +316,11 @@ int main( void )
             // params of particles' moving are shown below
             
             // life span (s)
-			ParticlesContainer[particleIndex].life = 1.4f;
+			ParticlesContainer[particleIndex].life = 1.5f;
             
             // init position
             float radius = 7.5f;
-            float theta = (rand()%1000)/1000.0f*3.14-3.14f;
+            float theta = (rand()%1000)/1000.0f*3.14f-3.14f; // -pi~pi
 //            vec3 posOffset(((rand()%2000 - 1000.0f)/500.0f), 3.5f, -15.f);
             vec3 posOffset(cos(theta)*radius-1.f, 3.5f, sin(theta)*radius-7.f);
             ParticlesContainer[particleIndex].pos = glm::vec3(sceneCenter+posOffset);
@@ -330,7 +330,10 @@ int main( void )
             float spread = 0.15f;
             // velocity is time-varying
             float velocity = 10.f * (0.8f + 0.1f * (float) (sin(0.5 * currentFrame) + sin(1.31 * currentFrame)));
+            // front side speed
             glm::vec3 maindir = glm::vec3(0.0f, 0.2f, 0.4f);
+            // round side speed
+//            glm::vec3 maindir = glm::vec3(-0.4f*cos(theta), 0.2f, -0.4f*sin(theta));
             glm::vec3 randomdir = glm::vec3(
 				(rand()%2000 - 1000.0f)/1000.0f,
 				(rand()%2000 - 1000.0f)/1000.0f,
@@ -342,10 +345,15 @@ int main( void )
 			ParticlesContainer[particleIndex].r = 0.4 * 256;
 			ParticlesContainer[particleIndex].g = 0.8 * 256;
 			ParticlesContainer[particleIndex].b = 0.8 * 256 + 0.2 * (rand() % 256);
-			ParticlesContainer[particleIndex].a = (rand() % 256) / 3 +50;
+			ParticlesContainer[particleIndex].a = (rand() % 256) / 3 +100;
 
             // random size
-			ParticlesContainer[particleIndex].size = (rand()%1000)/2000.0f + 0.1f;//0.1-1.1
+            if(randomdir.z > 0.9f) // particles outside is smaller
+                ParticlesContainer[particleIndex].size = 0.1f;
+            else if(randomdir.z > 0.5f)
+                ParticlesContainer[particleIndex].size = (rand()%1000)/5000.0f + 0.1f;
+            else
+                ParticlesContainer[particleIndex].size = (rand()%1000)/2000.0f + 0.1f;
 			
 		}
 
