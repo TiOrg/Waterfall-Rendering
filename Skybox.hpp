@@ -9,7 +9,7 @@
 #ifndef Skybox_h
 #define Skybox_h
 
-const float skyboxVertices[] = {
+float skyboxVertices[] = {
     // positions
     -1.0f,  1.0f, -1.0f,
     -1.0f, -1.0f, -1.0f,

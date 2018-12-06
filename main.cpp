@@ -113,6 +113,13 @@ int main( void )
     glGenVertexArrays(1, &skyboxVertexArray);
     glBindVertexArray(skyboxVertexArray);
 
+    float sceneScale = 500.f;
+    for(unsigned int i = 0;i < 36*3; i++)
+    {
+        skyboxVertices[i] *= sceneScale;
+        skyboxVertices[i] += sceneCenter[i%3];
+    }
+    
     Shader skyboxShader("shader/skybox.vs", "shader/skybox.fs");
 
     GLuint skybox_vertex_buffer;
@@ -232,6 +239,33 @@ int main( void )
 		glm::vec3 CameraPosition(glm::inverse(ViewMatrix)[3]);
 
         
+        
+        //===============================================================================================
+        // skybox render
+        //===============================================================================================
+        
+        
+        // draw skybox as last
+        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+        skyboxShader.use();
+        skyboxShader.setMat4("VP", ViewProjectionMatrix);
+        // skybox cube
+        
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        skyboxShader.setInt("skybox", 0);
+        
+        
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, skybox_vertex_buffer);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDisableVertexAttribArray(0);
+        
+        glDepthFunc(GL_LESS); // set depth function back to default
+
+        
         //===============================================================================================
         // terrain render
         //===============================================================================================
@@ -292,14 +326,17 @@ int main( void )
             ParticlesContainer[particleIndex].pos = glm::vec3(sceneCenter+posOffset);
 
             // init speed direction
-            float spread = 1.5f;
-            glm::vec3 maindir = glm::vec3(0.0f, 1.0f, 4.0f);
+            // scale of diffuse
+            float spread = 0.15f;
+            // velocity is time-varying
+            float velocity = 10.f * (0.8f + 0.1f * (float) (sin(0.5 * currentFrame) + sin(1.31 * currentFrame)));
+            glm::vec3 maindir = glm::vec3(0.0f, 0.2f, 0.4f);
             glm::vec3 randomdir = glm::vec3(
 				(rand()%2000 - 1000.0f)/1000.0f,
 				(rand()%2000 - 1000.0f)/1000.0f,
 				(rand()%2000 - 1000.0f)/1000.0f
 			);
-			ParticlesContainer[particleIndex].speed = maindir + randomdir*spread;
+			ParticlesContainer[particleIndex].speed = (maindir + randomdir*spread) * velocity;
 
             // blue color with random alpha
 			ParticlesContainer[particleIndex].r = 0.4 * 256;
@@ -428,32 +465,6 @@ int main( void )
 		glDisableVertexAttribArray(2);
 
         
-        
-        //===============================================================================================
-        // skybox render
-        //===============================================================================================
-        
-        
-        // draw skybox as last
-        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-        skyboxShader.use();
-        skyboxShader.setMat4("VP", ViewProjectionMatrix);
-        // skybox cube
-        
-        
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-        skyboxShader.setInt("skybox", 0);
-        
-        
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, skybox_vertex_buffer);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDisableVertexAttribArray(0);
-
-        glDepthFunc(GL_LESS); // set depth function back to default
-
         //===============================================================================================
         // render end
         //===============================================================================================
