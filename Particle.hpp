@@ -24,7 +24,7 @@ struct Particle{
     }
 };
 
-const int MaxParticles = 50000;
+const int MaxParticles = 100000;
 Particle ParticlesContainer[MaxParticles];
 int LastUsedParticle = 0;
 

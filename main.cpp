@@ -281,15 +281,19 @@ int main( void )
             
             // params of particles' moving are shown below
             
-            // life span
-			ParticlesContainer[particleIndex].life = 5.0f; // This particle will live 5 seconds.
+            // life span (s)
+			ParticlesContainer[particleIndex].life = 1.4f;
             
             // init position
-			ParticlesContainer[particleIndex].pos = glm::vec3(sceneCenter+vec3(0.f, 3.5f, -15.f));
+            float radius = 7.5f;
+            float theta = (rand()%1000)/1000.0f*3.14-3.14f;
+//            vec3 posOffset(((rand()%2000 - 1000.0f)/500.0f), 3.5f, -15.f);
+            vec3 posOffset(cos(theta)*radius-1.f, 3.5f, sin(theta)*radius-7.f);
+            ParticlesContainer[particleIndex].pos = glm::vec3(sceneCenter+posOffset);
 
             // init speed direction
             float spread = 1.5f;
-            glm::vec3 maindir = glm::vec3(0.0f, 1.0f, 2.0f);
+            glm::vec3 maindir = glm::vec3(0.0f, 1.0f, 4.0f);
             glm::vec3 randomdir = glm::vec3(
 				(rand()%2000 - 1000.0f)/1000.0f,
 				(rand()%2000 - 1000.0f)/1000.0f,
@@ -298,13 +302,13 @@ int main( void )
 			ParticlesContainer[particleIndex].speed = maindir + randomdir*spread;
 
             // blue color with random alpha
-			ParticlesContainer[particleIndex].r = 0.2 * 256;
-			ParticlesContainer[particleIndex].g = 0.7 * 256;
-			ParticlesContainer[particleIndex].b = 0.7 * 256 + 0.2 * (rand() % 256);
-			ParticlesContainer[particleIndex].a = (rand() % 256) / 3;
+			ParticlesContainer[particleIndex].r = 0.4 * 256;
+			ParticlesContainer[particleIndex].g = 0.8 * 256;
+			ParticlesContainer[particleIndex].b = 0.8 * 256 + 0.2 * (rand() % 256);
+			ParticlesContainer[particleIndex].a = (rand() % 256) / 3 +50;
 
             // random size
-			ParticlesContainer[particleIndex].size = (rand()%1000)/2000.0f + 0.1f;
+			ParticlesContainer[particleIndex].size = (rand()%1000)/2000.0f + 0.1f;//0.1-1.1
 			
 		}
 
