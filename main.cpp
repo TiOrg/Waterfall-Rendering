@@ -113,7 +113,7 @@ int main( void )
     glGenVertexArrays(1, &skyboxVertexArray);
     glBindVertexArray(skyboxVertexArray);
 
-    Shader skyboxShader("shader/SkyboxShader.vs", "shader/SkyboxShader.fs");
+    Shader skyboxShader("shader/skybox.vs", "shader/skybox.fs");
 
     GLuint skybox_vertex_buffer;
     glGenBuffers(1, &skybox_vertex_buffer);
@@ -142,7 +142,7 @@ int main( void )
 	glBindVertexArray(particleVertexArray);
 
 	// Create and compile our GLSL program from the shaders
-    Shader particleShader( "shader/ParticleShader.vs", "shader/ParticleShader.fs" );
+    Shader particleShader( "shader/particle.vs", "shader/particle.fs" );
 
 	static GLfloat* g_particle_position_data = new GLfloat[MaxParticles * 4];
 	static GLubyte* g_particle_color_data    = new GLubyte[MaxParticles * 4];
@@ -193,7 +193,7 @@ int main( void )
     glBindVertexArray(terrainVertexArray);
     
     // Create and compile our GLSL program from the shaders
-    Shader terrainShader( "shader/TerrainShader.vs", "shader/TerrainShader.fs" );
+    Shader terrainShader( "shader/terrain.vs", "shader/terrain.fs" );
     
     // Read our .obj file
     std::vector<glm::vec3> vertices;
