@@ -69,24 +69,23 @@ std::vector<std::string> faces
 class Skybox
 {
 private:
-    GLuint skyboxVertexArray;
+    GLuint skybox_vertex_array;
     GLuint skybox_vertex_buffer;
     GLuint cubemapTexture;
     Shader *shader;
 
 public:
-    Skybox(float sceneScale, glm::vec3 sceneCenter, Shader *skyboxShader)
+    Skybox(float sceneScale, Shader *skyboxShader)
     {
         shader = skyboxShader;
+        
         // skybox VAO
-        glGenVertexArrays(1, &skyboxVertexArray);
-        glBindVertexArray(skyboxVertexArray);
+        glGenVertexArrays(1, &skybox_vertex_array);
+        glBindVertexArray(skybox_vertex_array);
         
         for(unsigned int i = 0;i < 36*3; i++)
-        {
             skyboxVertices[i] *= sceneScale;
-            skyboxVertices[i] += sceneCenter[i%3];
-        }
+        
         
         glGenBuffers(1, &skybox_vertex_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, skybox_vertex_buffer);

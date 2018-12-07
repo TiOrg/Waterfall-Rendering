@@ -21,7 +21,7 @@ using namespace glm;
 #include "Camera.hpp"
 #include "Shader.hpp"
 #include "Skybox.hpp"
-#include "Terrain.hpp"
+#include "Model.hpp"
 #pragma comment(lib, "glfw3.lib")
 
 
@@ -38,7 +38,7 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
-vec3 sceneCenter(80.f, 0.f, 180.f);
+vec3 sceneCenter(0.f, 0.f, 0.f);
 Camera camera(sceneCenter+vec3(0.f, 0.f, 15.f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
@@ -105,40 +105,38 @@ int main( void )
 
     
     
-    //===============================================================================================
+    //======================
     // prepare skybox
-    //===============================================================================================
+    //======================
     float sceneScale = 500.f;
 
     Shader skyboxShader("shader/skybox.vs", "shader/skybox.fs");
-    Skybox skybox(sceneScale, sceneCenter, &skyboxShader);
+    Skybox skybox(sceneScale, &skyboxShader);
     
-    //===============================================================================================
+    //======================
     // prepare particle
-    //===============================================================================================
+    //======================
     
     // Create and compile our GLSL program from the shaders
     Shader particleShader( "shader/particle.vs", "shader/particle.fs" );
     Particles waterfall(sceneCenter, &particleShader);
     
     
-    //===============================================================================================
+    //======================
     // prepare terrain
-    //===============================================================================================
+    //======================
     // Create and compile our GLSL program from the shaders
     Shader terrainShader( "shader/terrain.vs", "shader/terrain.fs" );
-    Terrain mountain(&terrainShader);
+    vec3 modelCenter(80.f, 0.f, 180.f);
+    Model mountain("material/waterfall-less.obj", modelCenter, sceneCenter, &terrainShader);
     
     while( !glfwWindowShouldClose(window))
     {
         
-        //===============================================================================================
-        // render init
-        //===============================================================================================
-        
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // set the frame
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -146,6 +144,7 @@ int main( void )
         // input
         processInput(window);
 
+        // MVP matrix
         glm::mat4 ModelMatrix = glm::mat4(1.0);
         glm::mat4 ViewMatrix = camera.GetViewMatrix();
         glm::mat4 ProjectionMatrix = glm::perspective(
@@ -160,21 +159,21 @@ int main( void )
 
         
         
-        //===============================================================================================
+        //======================
         // skybox render
-        //===============================================================================================
+        //======================
         
         skybox.draw(ViewProjectionMatrix);
         
-        //===============================================================================================
+        //======================
         // terrain render
-        //===============================================================================================
+        //======================
         
         mountain.draw(MVP);
         
-        //===============================================================================================
+        //======================
         // particle render
-        //===============================================================================================
+        //======================
         
         int newparticles = (int)(deltaTime*10000.0);
         if (newparticles > (int)(0.016f*10000.0))
@@ -186,11 +185,10 @@ int main( void )
 
         waterfall.draw(ViewMatrix, ViewProjectionMatrix);
         
-        //===============================================================================================
+        //======================
         // render end
-        //===============================================================================================
+        //======================
         
-		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 

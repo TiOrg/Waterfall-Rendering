@@ -17,15 +17,15 @@ struct Particle{
     unsigned char r,g,b,a; // Color
     float size, angle, weight;
     float life; // Remaining life of the particle. if <0 : dead and unused.
-    float cameradistance; // *Squared* distance to the camera. if dead : -1.0f
+    float camera_distance; // *Squared* distance to the camera. if dead : -1.0f
     
     bool operator<(const Particle& that) const {
         // Sort in reverse order : far particles drawn first.
-        return this->cameradistance > that.cameradistance;
+        return this->camera_distance > that.camera_distance;
     }
 };
 
-const int MaxParticles = 100000;
+const int MAXPARTICLES = 100000;
 
 // implies the relative position of container
 static const GLfloat g_container_vertex_data[] = {
@@ -38,15 +38,15 @@ static const GLfloat g_container_vertex_data[] = {
 class Particles
 {
 private:
-    glm::vec3 sceneCenter;
+    glm::vec3 system_center;
     
-    Particle ParticlesContainer[MaxParticles];
-    int LastUsedParticle = 0;
-    int ParticlesCount;
+    Particle particles_container[MAXPARTICLES];
+    int last_used_particle = 0;
+    int particles_count;
 
     // vertex position and color
-    GLfloat* g_particle_position_data = new GLfloat[MaxParticles * 4];
-    GLubyte* g_particle_color_data    = new GLubyte[MaxParticles * 4];
+    GLfloat* g_particle_position_data = new GLfloat[MAXPARTICLES * 4];
+    GLubyte* g_particle_color_data    = new GLubyte[MAXPARTICLES * 4];
 
     // Shader pointer
     Shader *shader;
@@ -55,29 +55,29 @@ private:
     GLuint particles_position_buffer;
     GLuint particles_color_buffer;
     // VAO
-    GLuint particleVertexArray;
+    GLuint particle_vertex_array;
     // Texture object
-    GLuint particleTexture;
+    GLuint particle_texture;
     
     
 public:
     Particles(glm::vec3 center, Shader *particleShader)
     {
-        sceneCenter = center;
+        system_center = center;
         
-        glGenVertexArrays(1, &particleVertexArray);
-        glBindVertexArray(particleVertexArray);
+        glGenVertexArrays(1, &particle_vertex_array);
+        glBindVertexArray(particle_vertex_array);
 
         shader = particleShader;
       
         // init particles
-        for(int i=0; i<MaxParticles; i++)
+        for(int i=0; i<MAXPARTICLES; i++)
         {
-            ParticlesContainer[i].life = -1.0f;
-            ParticlesContainer[i].cameradistance = -1.0f;
+            particles_container[i].life = -1.0f;
+            particles_container[i].camera_distance = -1.0f;
         }
         
-        particleTexture = loadDDS("material/particle.DDS");
+        particle_texture = loadDDS("material/particle.DDS");
         
         // init VBO
         // The VBO containing the 4 vertices of the particles.
@@ -91,13 +91,13 @@ public:
         glGenBuffers(1, &particles_position_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
         // Initialize with empty (NULL) buffer : it will be updated later, each frame.
-        glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, MAXPARTICLES * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
         
         // The VBO containing the colors of the particles
         glGenBuffers(1, &particles_color_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
         // Initialize with empty (NULL) buffer : it will be updated later, each frame.
-        glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, MAXPARTICLES * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
         
     }
     
@@ -111,7 +111,7 @@ public:
         glDeleteBuffers(1, &particles_color_buffer);
         glDeleteBuffers(1, &particles_position_buffer);
         glDeleteBuffers(1, &container_vertex_buffer);
-        glDeleteVertexArrays(1, &particleVertexArray);
+        glDeleteVertexArrays(1, &particle_vertex_array);
         shader->_delete();
     }
     
@@ -127,14 +127,14 @@ public:
             // params of particles' moving are shown below
             
             // life span (s)
-            ParticlesContainer[particleIndex].life = 1.5f;
+            particles_container[particleIndex].life = 1.5f;
             
             // init position
             float radius = 7.5f;
             float theta = (rand()%1000)/1000.0f*3.14f-3.14f; // -pi~pi
             //            vec3 posOffset(((rand()%2000 - 1000.0f)/500.0f), 3.5f, -15.f);
             vec3 posOffset(cos(theta)*radius-1.f, 3.5f, sin(theta)*radius-7.f);
-            ParticlesContainer[particleIndex].pos = glm::vec3(sceneCenter+posOffset);
+            particles_container[particleIndex].pos = glm::vec3(system_center+posOffset);
             
             // init speed direction
             // scale of diffuse
@@ -150,31 +150,31 @@ public:
                                             (rand()%2000 - 1000.0f)/1000.0f,
                                             (rand()%2000 - 1000.0f)/1000.0f
                                             );
-            ParticlesContainer[particleIndex].speed = (maindir + randomdir*spread) * velocity;
+            particles_container[particleIndex].speed = (maindir + randomdir*spread) * velocity;
             
             // blue color with random alpha
-            ParticlesContainer[particleIndex].r = 0.4 * 256;
-            ParticlesContainer[particleIndex].g = 0.8 * 256;
-            ParticlesContainer[particleIndex].b = 0.8 * 256 + 0.2 * (rand() % 256);
-            ParticlesContainer[particleIndex].a = (rand() % 256) / 3 +100;
+            particles_container[particleIndex].r = 0.4 * 256;
+            particles_container[particleIndex].g = 0.8 * 256;
+            particles_container[particleIndex].b = 0.8 * 256 + 0.2 * (rand() % 256);
+            particles_container[particleIndex].a = (rand() % 256) / 3 +100;
             
             // random size
             if(randomdir.z > 0.9f) // particles outside is smaller
-                ParticlesContainer[particleIndex].size = 0.1f;
+                particles_container[particleIndex].size = 0.1f;
             else if(randomdir.z > 0.5f)
-                ParticlesContainer[particleIndex].size = (rand()%1000)/5000.0f + 0.1f;
+                particles_container[particleIndex].size = (rand()%1000)/5000.0f + 0.1f;
             else
-                ParticlesContainer[particleIndex].size = (rand()%1000)/2000.0f + 0.1f;
+                particles_container[particleIndex].size = (rand()%1000)/2000.0f + 0.1f;
         }
     }
     
     void UpdateParticles(float deltaTime, glm::vec3 CameraPosition)
     {
         // Simulate all particles
-        ParticlesCount = 0;
-        for(int i=0; i<MaxParticles; i++)
+        particles_count = 0;
+        for(int i=0; i<MAXPARTICLES; i++)
         {
-            Particle& p = ParticlesContainer[i]; // shortcut
+            Particle& p = particles_container[i]; // shortcut
             
             if(p.life > 0.0f)
             {
@@ -184,27 +184,27 @@ public:
                     // Simulate simple physics : gravity only, no collisions
                     p.speed += glm::vec3(0.0f,-9.81f, 0.0f) * (float)deltaTime;
                     p.pos += p.speed * (float)deltaTime;
-                    p.cameradistance = glm::length2( p.pos - CameraPosition );
+                    p.camera_distance = glm::length2( p.pos - CameraPosition );
                     
                     // Fill the GPU buffer
-                    g_particle_position_data[4*ParticlesCount+0] = p.pos.x;
-                    g_particle_position_data[4*ParticlesCount+1] = p.pos.y;
-                    g_particle_position_data[4*ParticlesCount+2] = p.pos.z;
+                    g_particle_position_data[4*particles_count+0] = p.pos.x;
+                    g_particle_position_data[4*particles_count+1] = p.pos.y;
+                    g_particle_position_data[4*particles_count+2] = p.pos.z;
                     
-                    g_particle_position_data[4*ParticlesCount+3] = p.size;
+                    g_particle_position_data[4*particles_count+3] = p.size;
                     
-                    g_particle_color_data[4*ParticlesCount+0] = p.r;
-                    g_particle_color_data[4*ParticlesCount+1] = p.g;
-                    g_particle_color_data[4*ParticlesCount+2] = p.b;
-                    g_particle_color_data[4*ParticlesCount+3] = p.a;
+                    g_particle_color_data[4*particles_count+0] = p.r;
+                    g_particle_color_data[4*particles_count+1] = p.g;
+                    g_particle_color_data[4*particles_count+2] = p.b;
+                    g_particle_color_data[4*particles_count+3] = p.a;
                     
                 }
                 else
                 {
                     // Particles that just died will be put at the end of the buffer in SortParticles();
-                    p.cameradistance = -1.0f;
+                    p.camera_distance = -1.0f;
                 }
-                ParticlesCount++;
+                particles_count++;
             }
         }
         SortParticles();
@@ -214,12 +214,12 @@ public:
     {
         // main buffer draw
         glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-        glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(GLfloat) * 4, g_particle_position_data);
+        glBufferData(GL_ARRAY_BUFFER, MAXPARTICLES * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, particles_count * sizeof(GLfloat) * 4, g_particle_position_data);
         
         glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
-        glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(GLubyte) * 4, g_particle_color_data);
+        glBufferData(GL_ARRAY_BUFFER, MAXPARTICLES * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, particles_count * sizeof(GLubyte) * 4, g_particle_color_data);
         
         
         glEnable(GL_BLEND);
@@ -230,7 +230,7 @@ public:
         
         // Bind our texture in Texture Unit 0
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, particleTexture);
+        glBindTexture(GL_TEXTURE_2D, particle_texture);
         // Set our "myTextureSampler" sampler to use Texture Unit 0
         shader->setInt("myTextureSampler", 0);
         
@@ -280,7 +280,7 @@ public:
         glVertexAttribDivisor(2, 1); // color : one per quad                                  -> 1
         
         // Draw particles
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, ParticlesCount);
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particles_count);
         
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
@@ -290,20 +290,20 @@ public:
   
 private:
     
-    // Finds a Particle in ParticlesContainer which isn't used yet.
+    // Finds a Particle in particles_container which isn't used yet.
     // (i.e. life < 0);
     int FindUnusedParticle(){
         
-        for(int i=LastUsedParticle; i<MaxParticles; i++){
-            if (ParticlesContainer[i].life < 0){
-                LastUsedParticle = i;
+        for(int i=last_used_particle; i<MAXPARTICLES; i++){
+            if (particles_container[i].life < 0){
+                last_used_particle = i;
                 return i;
             }
         }
         
-        for(int i=0; i<LastUsedParticle; i++){
-            if (ParticlesContainer[i].life < 0){
-                LastUsedParticle = i;
+        for(int i=0; i<last_used_particle; i++){
+            if (particles_container[i].life < 0){
+                last_used_particle = i;
                 return i;
             }
         }
@@ -312,7 +312,7 @@ private:
     }
     
     void SortParticles(){
-        std::sort(&ParticlesContainer[0], &ParticlesContainer[MaxParticles]);
+        std::sort(&particles_container[0], &particles_container[MAXPARTICLES]);
     }
     
 };
