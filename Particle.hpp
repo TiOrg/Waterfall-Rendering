@@ -112,7 +112,6 @@ public:
         glDeleteBuffers(1, &particles_position_buffer);
         glDeleteBuffers(1, &container_vertex_buffer);
         glDeleteVertexArrays(1, &particle_vertex_array);
-        shader->_delete();
     }
     
     void SpawnParticles(float currentFrame, int newparticles)

@@ -95,6 +95,11 @@ public:
         cubemapTexture = loadCubemap(faces);
     }
     
+    ~Skybox()
+    {
+        glDeleteBuffers(1, &skybox_vertex_array);
+        glDeleteBuffers(1, &skybox_vertex_buffer);
+    }
     void draw(glm::mat4 ViewProjectionMatrix)
     {
         

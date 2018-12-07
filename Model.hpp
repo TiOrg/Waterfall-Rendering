@@ -65,6 +65,11 @@ public:
         
     }
     
+    ~Model()
+    {        
+        glDeleteBuffers(1, &model_vertex_array);
+        glDeleteBuffers(1, &model_vertex_buffer);
+    }
     void draw(glm::mat4 MVP)
     {
         
