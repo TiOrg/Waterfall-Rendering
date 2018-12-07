@@ -50,6 +50,8 @@ public:
         // Read our .obj file
         loadOBJ(objpath, model_vertices);
         
+        
+        // move to the center of target location
         glm::vec3 offset = targetCenter - modelCenter;
         for(unsigned int i = 0;i < model_vertices.size(); i++)
         {
