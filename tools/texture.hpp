@@ -11,6 +11,9 @@ GLuint loadBMP_custom(const char * imagepath);
 
 // Load a .DDS file using GLFW's own loader
 GLuint loadDDS(const char * imagepath);
+unsigned int loadJPG(char const * path);
+
+unsigned int loadCubemap(std::vector<std::string> faces);
 
 
 #endif
