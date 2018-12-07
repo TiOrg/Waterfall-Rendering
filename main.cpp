@@ -11,12 +11,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/norm.hpp>
-using namespace glm;
 
-//#include "common/shader.hpp"
 #include "tools/texture.hpp"
 #include "tools/objloader.hpp"
-//#include "common/controls.hpp"
+
 #include "Particle.hpp"
 #include "Camera.hpp"
 #include "Shader.hpp"
@@ -38,8 +36,8 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
-vec3 sceneCenter(0.f, 0.f, 0.f);
-Camera camera(sceneCenter+vec3(0.f, 0.f, 15.f));
+glm::vec3 sceneCenter(0.f, 0.f, 0.f);
+Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 15.f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -127,7 +125,7 @@ int main( void )
     //======================
     // Create and compile our GLSL program from the shaders
     Shader terrainShader( "shader/terrain.vs", "shader/terrain.fs" );
-    vec3 modelCenter(80.f, 0.f, 180.f);
+    glm::vec3 modelCenter(80.f, 0.f, 180.f);
     Model mountain("material/waterfall-less.obj", modelCenter, sceneCenter, &terrainShader);
     
     while( !glfwWindowShouldClose(window))

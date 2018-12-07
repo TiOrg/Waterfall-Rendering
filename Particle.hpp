@@ -133,14 +133,14 @@ public:
             float radius = 7.5f;
             float theta = (rand()%1000)/1000.0f*3.14f-3.14f; // -pi~pi
             //            vec3 posOffset(((rand()%2000 - 1000.0f)/500.0f), 3.5f, -15.f);
-            vec3 posOffset(cos(theta)*radius-1.f, 3.5f, sin(theta)*radius-7.f);
+            glm::vec3 posOffset(cos(theta)*radius-1.f, 3.5f, sin(theta)*radius-7.f);
             particles_container[particleIndex].pos = glm::vec3(system_center+posOffset);
             
             // init speed direction
             // scale of diffuse
             float spread = 0.15f;
             // velocity is time-varying
-            float velocity = 10.f * (0.8f + 0.1f * (float) (sin(0.5 * currentFrame) + sin(1.31 * currentFrame)));
+            float velocity = 13.f * (0.8f + 0.1f * (float) (sin(0.5 * currentFrame) + sin(1.31 * currentFrame)));
             // front side speed
             glm::vec3 maindir = glm::vec3(0.0f, 0.2f, 0.4f);
             // round side speed
