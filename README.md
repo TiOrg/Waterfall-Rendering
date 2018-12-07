@@ -1,7 +1,7 @@
 # Waterfall-Rendering
 CG project: 将所有文件放在同一文件夹下统一编译即可
 ### 需要的库
-glfw glew glm
+```glfw glew glm```
 
 ### TODOs
 ```
