@@ -56,19 +56,8 @@ bool loadOBJ(
 			std::string vertex1, vertex2, vertex3;
 			unsigned int vertexIndex[4], trash;
             
-//            int matches = fscanf(file, "%d %d %d\n", &vertexIndex[0],  &vertexIndex[1],  &vertexIndex[2]);
-//            if (matches != 3){
-//                printf("File can't be read by parser :-(\n");
-//                fclose(file);
-//                return false;
-//            }
-//            vertexIndices.push_back(vertexIndex[0]);
-//            vertexIndices.push_back(vertexIndex[1]);
-//            vertexIndices.push_back(vertexIndex[2]);
-
-            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &trash, &trash, &vertexIndex[1], &trash, &trash, &vertexIndex[2], &trash, &trash, &vertexIndex[3], &trash, &trash );
-            if (matches != 12)
-            {
+            int matches = fscanf(file, "%d %d %d\n", &vertexIndex[0],  &vertexIndex[1],  &vertexIndex[2]);
+            if (matches != 3){
                 printf("File can't be read by parser :-(\n");
                 fclose(file);
                 return false;
