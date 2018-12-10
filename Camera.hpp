@@ -14,7 +14,12 @@ enum Camera_Movement {
 	LEFT,
 	RIGHT,
     UPWORD,
-    DOWNWORD
+    DOWNWORD,
+    
+    MOVE_FORWARD,
+    MOVE_BACKWARD,
+    MOVE_LEFT,
+    MOVE_RIGHT
 };
 
 // Default camera values
@@ -35,6 +40,7 @@ public:
 	glm::vec3 Up;
 	glm::vec3 Right;
 	glm::vec3 WorldUp;
+    glm::mat4 ModelMatrix = glm::mat4(1.0);
 	// Euler Angles
 	float Yaw;
 	float Pitch;

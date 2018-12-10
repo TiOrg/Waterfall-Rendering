@@ -76,10 +76,31 @@ bool loadOBJ(
             vertexIndices.push_back(vertexIndex[0]);
             vertexIndices.push_back(vertexIndex[1]);
             vertexIndices.push_back(vertexIndex[2]);
-            
-            vertexIndices.push_back(vertexIndex[1]);
-            vertexIndices.push_back(vertexIndex[2]);
-            vertexIndices.push_back(vertexIndex[3]);
+
+//            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &trash, &trash, &vertexIndex[1], &trash, &trash, &vertexIndex[2], &trash, &trash, &vertexIndex[3], &trash, &trash );
+//            if( matches == 12)
+//            {
+//                vertexIndices.push_back(vertexIndex[0]);
+//                vertexIndices.push_back(vertexIndex[1]);
+//                vertexIndices.push_back(vertexIndex[2]);
+//
+//                vertexIndices.push_back(vertexIndex[1]);
+//                vertexIndices.push_back(vertexIndex[2]);
+//                vertexIndices.push_back(vertexIndex[3]);
+//
+//            }
+//            else if(matches == 9)
+//            {
+//                vertexIndices.push_back(vertexIndex[0]);
+//                vertexIndices.push_back(vertexIndex[1]);
+//                vertexIndices.push_back(vertexIndex[2]);
+//            }
+//            else
+//            {
+//                printf("File can't be read by parser :-(\n");
+//                fclose(file);
+//                return false;
+//            }
 
 //            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &trash, &trash, &vertexIndex[1], &trash, &trash, &vertexIndex[2], &trash, &trash );
 //            if (matches != 9)

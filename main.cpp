@@ -37,7 +37,7 @@ const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
 glm::vec3 sceneCenter(0.f, 0.f, 0.f);
-Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 15.f));
+Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 20.f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -100,16 +100,17 @@ int main( void )
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
-
+    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
     
     //======================
     // prepare skybox
     //======================
-    float sceneScale = 500.f;
+    float skyboxScale = 500.f;
 
     Shader skyboxShader("shader/skybox.vs", "shader/skybox.fs");
-    Skybox skybox(sceneScale, &skyboxShader);
+    Skybox skybox(skyboxScale, &skyboxShader);
     
     //======================
     // prepare particle
@@ -117,17 +118,22 @@ int main( void )
     
     // Create and compile our GLSL program from the shaders
     Shader particleShader( "shader/particle.vs", "shader/particle.fs" );
-    Particles waterfall(sceneCenter, &particleShader);
+    glm::vec3 particleCenter(0.f, 3.f, 7.f);
+    Particles waterfall(particleCenter, &particleShader);
     
     
     //======================
     // prepare terrain
     //======================
     // Create and compile our GLSL program from the shaders
-    Shader terrainShader( "shader/terrain.vs", "shader/terrain.fs" );
-    glm::vec3 modelCenter(80.f, 0.f, 180.f);
-    Model mountain("material/waterfall-less.obj", modelCenter, sceneCenter, &terrainShader);
-    
+    Shader modelShader( "shader/model.vs", "shader/model.fs" );
+    glm::vec3 moutainCenter(1.42f, 0.1f, 0.f);
+    Model mountain("material/waterfall-more.obj", moutainCenter, sceneCenter, 30.f, &modelShader);
+    glm::vec3 shipCenter(0.f, 0.f, 0.f);
+    glm::vec3 initPosition(0.f, 0.f, 300.f);
+//    Model ship("material/bigship.obj", shipCenter, initPosition, 1.f/100.f, &modelShader);
+    Model ship("material/smallship.obj", shipCenter, initPosition, 1.f/2000.f, &modelShader);
+
     while( !glfwWindowShouldClose(window))
     {
         
@@ -168,6 +174,7 @@ int main( void )
         //======================
         
         mountain.draw(MVP);
+        ship.draw(MVP);
         
         //======================
         // particle render
@@ -214,10 +221,20 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         camera.ProcessKeyboard(UPWORD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWNWORD, deltaTime);
+
+//    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+//        camera.ProcessKeyboard(MOVE_FORWARD, deltaTime);
+//    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+//        camera.ProcessKeyboard(MOVE_BACKWARD, deltaTime);
+//    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+//        camera.ProcessKeyboard(MOVE_LEFT, deltaTime);
+//    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+//        camera.ProcessKeyboard(MOVE_RIGHT, deltaTime);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

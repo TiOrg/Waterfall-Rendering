@@ -19,7 +19,7 @@ private:
     GLuint model_vertex_buffer;
     Shader *shader;
 public:
-    Model(const char *objpath, Shader *modelShader)
+    Model(const char *objpath, float scale, Shader *modelShader)
     {
         
         glGenVertexArrays(1, &model_vertex_buffer);
@@ -31,6 +31,12 @@ public:
         // Read our .obj file
         loadOBJ(objpath, model_vertices);
 
+        
+        for(unsigned int i = 0;i < model_vertices.size(); i++)
+        {
+            model_vertices[i] *= scale;
+        }
+        
         // Load it into a VBO
         glGenBuffers(1, &model_vertex_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, model_vertex_buffer);
@@ -38,7 +44,7 @@ public:
     }
     
     // Use this if you want to move the model
-    Model(const char *objpath, glm::vec3 modelCenter, glm::vec3 targetCenter, Shader *modelShader)
+    Model(const char *objpath, glm::vec3 modelCenter, glm::vec3 targetCenter,float scale, Shader *modelShader)
     {
         
         glGenVertexArrays(1, &model_vertex_buffer);
@@ -54,6 +60,7 @@ public:
         for(unsigned int i = 0;i < model_vertices.size(); i++)
         {
             model_vertices[i] += offset;
+            model_vertices[i] *= scale;
         }
         
         // Load it into a VBO
