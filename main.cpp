@@ -146,11 +146,11 @@ int main( void )
         glm::mat4 ModelMatrix = glm::mat4(1.0);
         glm::mat4 ViewMatrix = camera.GetViewMatrix();
         glm::mat4 ProjectionMatrix = glm::perspective(
-                                                      glm::radians(camera.Zoom),
-                                                      (float)SCR_WIDTH / (float)SCR_HEIGHT,
-                                                      0.1f,
-                                                      100.0f
-                                                      );
+              glm::radians(camera.Zoom),
+              (float)SCR_WIDTH / (float)SCR_HEIGHT,
+              0.1f,
+              100.0f
+              );
         glm::mat4 ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
         glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
         glm::vec3 CameraPosition(glm::inverse(ViewMatrix)[3]);
