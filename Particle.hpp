@@ -99,6 +99,49 @@ public:
         // Initialize with empty (NULL) buffer : it will be updated later, each frame.
         glBufferData(GL_ARRAY_BUFFER, MAXPARTICLES * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
         
+        
+        
+        // 1st attribute buffer : vertices
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, container_vertex_buffer);
+        glVertexAttribPointer(
+                              0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
+                              3,                  // size
+                              GL_FLOAT,           // type
+                              GL_FALSE,           // normalized?
+                              0,                  // stride
+                              (void*)0            // array buffer offset
+                              );
+        
+        // 2nd attribute buffer : positions of particles' centers
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
+        glVertexAttribPointer(
+                              1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+                              4,                                // size : x + y + z + size => 4
+                              GL_FLOAT,                         // type
+                              GL_FALSE,                         // normalized?
+                              0,                                // stride
+                              (void*)0                          // array buffer offset
+                              );
+        
+        // 3rd attribute buffer : particles' colors
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
+        glVertexAttribPointer(
+                              2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+                              4,                                // size : r + g + b + a => 4
+                              GL_UNSIGNED_BYTE,                 // type
+                              GL_TRUE,                          // normalized?    *** YES, this means that the unsigned char[4] will be accessible with a vec4 (floats) in the shader ***
+                              0,                                // stride
+                              (void*)0                          // array buffer offset
+                              );
+        
+        glVertexAttribDivisor(0, 0); // particles vertices : always reuse the same 4 vertices -> 0
+        glVertexAttribDivisor(1, 1); // positions : one per quad (its center)                 -> 1
+        glVertexAttribDivisor(2, 1); // color : one per quad                                  -> 1
+        glBindVertexArray(0);
+
     }
     
     
@@ -238,54 +281,12 @@ public:
         shader->setVec3("CameraRight_worldspace", ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]);
         shader->setVec3("CameraUp_worldspace", ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]);
         shader->setMat4("VP", ViewProjectionMatrix);
-        
-        // 1st attribute buffer : vertices
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, container_vertex_buffer);
-        glVertexAttribPointer(
-                              0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
-                              3,                  // size
-                              GL_FLOAT,           // type
-                              GL_FALSE,           // normalized?
-                              0,                  // stride
-                              (void*)0            // array buffer offset
-                              );
-        
-        // 2nd attribute buffer : positions of particles' centers
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-        glVertexAttribPointer(
-                              1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-                              4,                                // size : x + y + z + size => 4
-                              GL_FLOAT,                         // type
-                              GL_FALSE,                         // normalized?
-                              0,                                // stride
-                              (void*)0                          // array buffer offset
-                              );
-        
-        // 3rd attribute buffer : particles' colors
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
-        glVertexAttribPointer(
-                              2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-                              4,                                // size : r + g + b + a => 4
-                              GL_UNSIGNED_BYTE,                 // type
-                              GL_TRUE,                          // normalized?    *** YES, this means that the unsigned char[4] will be accessible with a vec4 (floats) in the shader ***
-                              0,                                // stride
-                              (void*)0                          // array buffer offset
-                              );
-        
-        glVertexAttribDivisor(0, 0); // particles vertices : always reuse the same 4 vertices -> 0
-        glVertexAttribDivisor(1, 1); // positions : one per quad (its center)                 -> 1
-        glVertexAttribDivisor(2, 1); // color : one per quad                                  -> 1
-        
+  
+        glBindVertexArray(particle_vertex_array);
+
         // Draw particles
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particles_count);
-        
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
-            
+        glBindVertexArray(0);
     }
   
 private:

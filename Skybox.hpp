@@ -58,12 +58,12 @@ float skyboxVertices[] = {
 
 std::vector<std::string> faces
 {
-    "material/right.jpg",
-    "material/left.jpg",
-    "material/top.jpg",
-    "material/bottom.jpg",
-    "material/front.jpg",
-    "material/back.jpg"
+    "material/skybox/right.jpg",
+    "material/skybox/left.jpg",
+    "material/skybox/top.jpg",
+    "material/skybox/bottom.jpg",
+    "material/skybox/front.jpg",
+    "material/skybox/back.jpg"
 };
 
 class Skybox
@@ -91,7 +91,12 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, skybox_vertex_buffer);
         glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
         
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, skybox_vertex_buffer);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         
+        glBindVertexArray(0);
+
         cubemapTexture = loadCubemap(faces);
     }
     
@@ -110,12 +115,10 @@ public:
         shader->setInt("skybox", 0);
         
         
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, skybox_vertex_buffer);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glBindVertexArray(skybox_vertex_array);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDisableVertexAttribArray(0);
-        
+        glBindVertexArray(0);
+
         glDepthFunc(GL_LESS); // set depth function back to default
     }
 };

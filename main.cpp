@@ -37,7 +37,7 @@ const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
 glm::vec3 sceneCenter(0.f, 0.f, 0.f);
-Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 20.f));
+Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 10.f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -128,11 +128,13 @@ int main( void )
     // Create and compile our GLSL program from the shaders
     Shader modelShader( "shader/model.vs", "shader/model.fs" );
     glm::vec3 moutainCenter(1.42f, 0.1f, 0.f);
-    Model mountain("material/waterfall-more.obj", moutainCenter, sceneCenter, 30.f, &modelShader);
-    glm::vec3 shipCenter(0.f, 0.f, 0.f);
-    glm::vec3 initPosition(0.f, 0.f, 300.f);
-//    Model ship("material/bigship.obj", shipCenter, initPosition, 1.f/100.f, &modelShader);
-    Model ship("material/smallship.obj", shipCenter, initPosition, 1.f/2000.f, &modelShader);
+    Model ship("material/ship/ShipMoscow.obj", &modelShader);
+
+//    Model mountain("material/waterfall-more.obj", moutainCenter, sceneCenter, 30.f, &modelShader);
+//    glm::vec3 shipCenter(0.f, 0.f, 0.f);
+//    glm::vec3 initPosition(0.f, 0.f, 300.f);
+////    Model ship("material/bigship.obj", shipCenter, initPosition, 1.f/100.f, &modelShader);
+//    Model ship("material/smallship.obj", shipCenter, initPosition, 1.f/2000.f, &modelShader);
 
     while( !glfwWindowShouldClose(window))
     {
@@ -173,7 +175,7 @@ int main( void )
         // terrain render
         //======================
         
-        mountain.draw(MVP);
+//        mountain.draw(MVP);
         ship.draw(MVP);
         
         //======================
