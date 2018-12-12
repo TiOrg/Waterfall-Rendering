@@ -29,6 +29,7 @@ private:
     Shader *shader;
     
 public:
+    glm::mat4 ModelMatrix = glm::mat4(1.0);
     /*  Functions   */
     // constructor, expects a filepath to a 3D model.
     Model(string const &path, Shader *modelShader)
@@ -41,6 +42,24 @@ public:
     void draw(glm::mat4 MVP)
     {
         shader->use();
+//        modelShader.use();
+//        modelShader.setMat4("model",ModelMatrix);
+//        modelShader.setMat4("view",ViewMatrix);
+//        modelShader.setMat4("projection",ProjectionMatrix);
+//        modelShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+//        modelShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+//        glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+//        modelShader.setVec3("lightPos", lightPos);
+//        //        shader->setVec3("viewPos", camera.Position);
+//        modelShader.setMat4("MVP", MVP);
+        
+//        shader->use();
+//        shader->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+//        shader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+//        glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+//        shader->setVec3("lightPos", lightPos);
+//        //        shader->setVec3("viewPos", camera.Position);
+//        shader->setMat4("MVP", MVP);
         shader->setMat4("MVP", MVP);
         for(unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);

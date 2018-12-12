@@ -13,13 +13,14 @@
 #include <glm/gtx/norm.hpp>
 
 #include "tools/texture.hpp"
-#include "tools/objloader.hpp"
+//#include "tools/objloader.hpp"
 
 #include "Particle.hpp"
 #include "Camera.hpp"
 #include "Shader.hpp"
 #include "Skybox.hpp"
 #include "Model.hpp"
+//#include "SimpleModel.hpp"
 #pragma comment(lib, "glfw3.lib")
 
 
@@ -123,18 +124,20 @@ int main( void )
     
     
     //======================
-    // prepare terrain
+    // prepare models
     //======================
     // Create and compile our GLSL program from the shaders
     Shader modelShader( "shader/model.vs", "shader/model.fs" );
-    glm::vec3 moutainCenter(1.42f, 0.1f, 0.f);
-    Model ship("material/ship/ShipMoscow.obj", &modelShader);
+    
+    glm::vec3 mountainCenter(1.42f, 0.1f, 0.f);
+    glm::vec3 offset = sceneCenter - mountainCenter;
 
-//    Model mountain("material/waterfall-more.obj", moutainCenter, sceneCenter, 30.f, &modelShader);
+
+    Model mountain("material/mountain.obj", &modelShader);
 //    glm::vec3 shipCenter(0.f, 0.f, 0.f);
 //    glm::vec3 initPosition(0.f, 0.f, 300.f);
-////    Model ship("material/bigship.obj", shipCenter, initPosition, 1.f/100.f, &modelShader);
-//    Model ship("material/smallship.obj", shipCenter, initPosition, 1.f/2000.f, &modelShader);
+
+    Model ship("material/ship/ShipMoscow.obj", &modelShader);
 
     while( !glfwWindowShouldClose(window))
     {
@@ -175,7 +178,7 @@ int main( void )
         // terrain render
         //======================
         
-//        mountain.draw(MVP);
+        mountain.draw(MVP);
         ship.draw(MVP);
         
         //======================

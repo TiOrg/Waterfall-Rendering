@@ -170,7 +170,7 @@ public:
             // params of particles' moving are shown below
             
             // life span (s)
-            particles_container[particleIndex].life = 1.5f;
+            particles_container[particleIndex].life = 2.f;
             
             // init position
             float radius = 7.5f;
@@ -228,6 +228,16 @@ public:
                     p.speed += glm::vec3(0.0f,-9.81f, 0.0f) * (float)deltaTime;
                     p.pos += p.speed * (float)deltaTime;
                     p.camera_distance = glm::length2( p.pos - CameraPosition );
+                    
+//                    if( p.pos.y < 0 )
+//                    {
+//                        p.speed = glm::vec3(0.0f, 5.8f, 0.0f);
+//                        p.size = 0.5;
+//                        p.r = 255;
+//                        p.g = 255;
+//                        p.b = 255;
+//                        p.a = 255*0.1;
+//                    }
                     
                     // Fill the GPU buffer
                     g_particle_position_data[4*particles_count+0] = p.pos.x;
