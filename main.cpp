@@ -134,10 +134,20 @@ int main( void )
 
 
     Model mountain("material/mountain.obj", &modelShader);
+    mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, offset);
+
+//    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
 //    glm::vec3 shipCenter(0.f, 0.f, 0.f);
 //    glm::vec3 initPosition(0.f, 0.f, 300.f);
 
     Model ship("material/ship/ShipMoscow.obj", &modelShader);
+    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(0, 0, 8.f));
+
+    ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
+    ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(0,0,1));
+    ship.ModelMatrix = glm::scale(ship.ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
+
+    
 
     while( !glfwWindowShouldClose(window))
     {
@@ -163,7 +173,7 @@ int main( void )
               100.0f
               );
         glm::mat4 ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
-        glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+        glm::mat4 VP = ProjectionMatrix * ViewMatrix;
         glm::vec3 CameraPosition(glm::inverse(ViewMatrix)[3]);
 
         
@@ -178,8 +188,8 @@ int main( void )
         // terrain render
         //======================
         
-        mountain.draw(MVP);
-        ship.draw(MVP);
+        mountain.draw(VP);
+        ship.draw(VP);
         
         //======================
         // particle render

@@ -39,8 +39,9 @@ public:
     }
     
     // draws the model, and thus all its meshes
-    void draw(glm::mat4 MVP)
+    void draw(glm::mat4 VP)
     {
+        glm::mat4 MVP = VP * ModelMatrix;
         shader->use();
 //        modelShader.use();
 //        modelShader.setMat4("model",ModelMatrix);
