@@ -15,5 +15,7 @@ unsigned int loadJPG(char const * path);
 
 unsigned int loadCubemap(std::vector<std::string> faces);
 
+void *file_contents(const char *filename, GLint *length);
+void *read_tga(const char *filename, int *width, int *height);
 
 #endif

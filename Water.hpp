@@ -9,7 +9,7 @@
 #ifndef Water_h
 #define Water_h
 
-#include "tools/util.h"
+#include "tools/texture.hpp"
 
 
 #define START_X        -4.0
@@ -128,11 +128,9 @@ public:
         glBindVertexArray(0);
     }
     
-    void draw(glm::mat4 M, glm::mat4 V,glm::mat4 Projection, float currentFrame)
+    void draw(glm::mat4 ModelMatrix, glm::mat4 ViewMatrix,glm::mat4 Projection, float currentFrame)
     {
-        glm::mat4 viewTransMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.5f));
-        glm::mat4 viewRotateMat = glm::rotate(viewTransMat, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        glm::mat4 ModelViewMat = glm::scale(viewRotateMat, glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::mat4 ModelViewMat = ViewMatrix * ModelMatrix;
         glm::mat3 NormalMat = glm::transpose(glm::inverse(glm::mat3(ModelViewMat)));
         
         shader->use();
