@@ -1,7 +1,7 @@
-#version 130
+#version 330 core
 
-attribute vec3 position;
-attribute vec3 normal;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
 
 uniform mat4 modelViewMat;
 uniform mat4 perspProjMat;
@@ -9,13 +9,13 @@ uniform mat3 normalMat;
 
 uniform float time;
 
-varying vec2 texture_coord;
+out vec2 texture_coord;
 
-varying vec3 normalVect;
-varying vec3 lightVect;
-varying vec3 eyeVect;
-varying vec3 halfWayVect;
-varying vec3 reflectVect;
+out vec3 normalVect;
+out vec3 lightVect;
+out vec3 eyeVect;
+out vec3 halfWayVect;
+out vec3 reflectVect;
 
 void main()
 {

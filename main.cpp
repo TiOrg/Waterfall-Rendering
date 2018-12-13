@@ -20,6 +20,7 @@
 #include "Shader.hpp"
 #include "Skybox.hpp"
 #include "Model.hpp"
+#include "Water.hpp"
 //#include "SimpleModel.hpp"
 #pragma comment(lib, "glfw3.lib")
 
@@ -38,7 +39,7 @@ const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
 glm::vec3 sceneCenter(0.f, 0.f, 0.f);
-Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 10.f));
+Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 2.f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -104,42 +105,42 @@ int main( void )
     
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
-    
-    //======================
-    // prepare skybox
-    //======================
-    float skyboxScale = 500.f;
-
-    Shader skyboxShader("shader/skybox.vs", "shader/skybox.fs");
-    Skybox skybox(skyboxScale, &skyboxShader);
-    
-    //======================
-    // prepare particle
-    //======================
-    
-    // Create and compile our GLSL program from the shaders
-    Shader particleShader( "shader/particle.vs", "shader/particle.fs" );
-    glm::vec3 particleCenter(0.f, 3.f, 7.f);
-    Particles waterfall(particleCenter, &particleShader);
-    
-    
-    //======================
-    // prepare models
-    //======================
-    // Create and compile our GLSL program from the shaders
+//
+//    //======================
+//    // prepare skybox
+//    //======================
+//    float skyboxScale = 500.f;
+//
+//    Shader skyboxShader("shader/skybox.vs", "shader/skybox.fs");
+//    Skybox skybox(skyboxScale, &skyboxShader);
+//
+//    //======================
+//    // prepare particle
+//    //======================
+//
+//    // Create and compile our GLSL program from the shaders
+//    Shader particleShader( "shader/particle.vs", "shader/particle.fs" );
+//    glm::vec3 particleCenter(0.f, 3.f, 7.f);
+//    Particles waterfall(particleCenter, &particleShader);
+//
+//
+//    //======================
+//    // prepare models
+//    //======================
+//    // Create and compile our GLSL program from the shaders
     Shader modelShader( "shader/model.vs", "shader/model.fs" );
-    
-    glm::vec3 mountainCenter(1.42f, 0.1f, 0.f);
-    glm::vec3 offset = sceneCenter - mountainCenter;
-
-
-    Model mountain("material/mountain.obj", &modelShader);
-    mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, offset);
-
-//    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
-//    glm::vec3 shipCenter(0.f, 0.f, 0.f);
-//    glm::vec3 initPosition(0.f, 0.f, 300.f);
-
+//
+//    glm::vec3 mountainCenter(1.42f, 0.1f, 0.f);
+//    glm::vec3 offset = sceneCenter - mountainCenter;
+//
+//
+//    Model mountain("material/mountain.obj", &modelShader);
+//    mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, offset);
+//
+////    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
+////    glm::vec3 shipCenter(0.f, 0.f, 0.f);
+////    glm::vec3 initPosition(0.f, 0.f, 300.f);
+//
     Model ship("material/ship/ShipMoscow.obj", &modelShader);
     ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(0, 0, 8.f));
 
@@ -147,7 +148,12 @@ int main( void )
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(0,0,1));
     ship.ModelMatrix = glm::scale(ship.ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
 
+        //======================
+        // prepare water
+        //======================
     
+        Shader waterShader("shader/water.vs", "shader/water.fs");
+        Water water(&waterShader);
 
     while( !glfwWindowShouldClose(window))
     {
@@ -179,32 +185,32 @@ int main( void )
         
         
         //======================
-        // skybox render
+        // water render
         //======================
+        water.calcuWave(currentFrame);
+        water.draw(ModelMatrix, ViewMatrix,ProjectionMatrix, currentFrame);
         
-        skybox.draw(ViewProjectionMatrix);
-        
-        //======================
-        // terrain render
-        //======================
-        
-        mountain.draw(VP);
+//        //======================
+//        // terrain render
+//        //======================
+//
+//        mountain.draw(VP);
         ship.draw(VP);
-        
-        //======================
-        // particle render
-        //======================
-        
-        int newparticles = (int)(deltaTime*10000.0);
-        if (newparticles > (int)(0.016f*10000.0))
-            newparticles = (int)(0.016f*10000.0);
-        
-        waterfall.SpawnParticles(currentFrame, newparticles);
-        waterfall.UpdateParticles(deltaTime, CameraPosition);
-        
 
-        waterfall.draw(ViewMatrix, ViewProjectionMatrix);
-        
+//        //======================
+//        // particle render
+//        //======================
+//
+//        int newparticles = (int)(deltaTime*10000.0);
+//        if (newparticles > (int)(0.016f*10000.0))
+//            newparticles = (int)(0.016f*10000.0);
+//
+//        waterfall.SpawnParticles(currentFrame, newparticles);
+//        waterfall.UpdateParticles(deltaTime, CameraPosition);
+//
+//
+//        waterfall.draw(ViewMatrix, ViewProjectionMatrix);
+//
         //======================
         // render end
         //======================
