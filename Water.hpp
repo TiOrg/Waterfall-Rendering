@@ -86,10 +86,14 @@ private:
     
     
 public:
+    glm::mat4 ModelMatrix = glm::mat4(1.0);
+    
     Water(Shader *waterShader)
     {
         shader = waterShader;
-        shader->setVec4("materAmbient", materAmbient);
+        
+        shader->use();
+        
         shader->setVec4("materAmbient", materAmbient);
         shader->setVec4("materSpecular", materSpecular);
         shader->setVec4("lightDiffuse", lightDiffuse);
@@ -99,23 +103,24 @@ public:
         
         initWave();
         
-        // set texture
-        diffuse_texture = initTexture("material/water-texture-2.tga");
-        normal_texture = initTexture("material/water-texture-2-normal.tga");
 
-        
         glGenVertexArrays(1, &water_vertex_array);
         glBindVertexArray(water_vertex_array);
         
         
         glGenBuffers(1, &water_vertex_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, water_vertex_buffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), NULL, GL_STATIC_DRAW);
         
         glGenBuffers(1, &water_normal_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, water_normal_buffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(normal_data), normal_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(normal_data), NULL, GL_STATIC_DRAW);
         
+        
+        // set texture
+        diffuse_texture = loadJPG("material/lake.jpg");
+        shader->setInt("texture[0]", 0);
+
 
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, water_vertex_buffer);
@@ -128,7 +133,7 @@ public:
         glBindVertexArray(0);
     }
     
-    void draw(glm::mat4 ModelMatrix, glm::mat4 ViewMatrix,glm::mat4 Projection, float currentFrame)
+    void draw(glm::mat4 ViewMatrix,glm::mat4 Projection, float currentFrame)
     {
         glm::mat4 ModelViewMat = ViewMatrix * ModelMatrix;
         glm::mat3 NormalMat = glm::transpose(glm::inverse(glm::mat3(ModelViewMat)));
@@ -140,7 +145,7 @@ public:
         shader->setMat4("perspProjMat", Projection);
         shader->setMat4("normalMat", NormalMat);
         
-        
+   
         glBindBuffer(GL_ARRAY_BUFFER, water_vertex_buffer);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
         
@@ -150,12 +155,8 @@ public:
         
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuse_texture);
-        shader->setInt("texture[0]", 0);
         
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, normal_texture);
-        shader->setInt("texture[1]", 1);
-
+        
 
         glBindVertexArray(water_vertex_array);
         for(int c=0; c<(STRIP_COUNT-1); c++)
@@ -247,7 +248,7 @@ private:
     }
     
 public:
-    void calcuWave(float time)
+    void UpdateWave(float time)
     {
         //Calculate pt_strip[z], poly_normal[] and pt_normal[]
         int index=0;
@@ -352,7 +353,7 @@ public:
         }
     }
     
-    static GLuint initTexture(const char *filename)
+    GLuint initTexture(const char *filename)
     {
         int width, height;
         void *pixels = read_tga(filename, &width, &height);

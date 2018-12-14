@@ -39,7 +39,7 @@ const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
 glm::vec3 sceneCenter(0.f, 0.f, 0.f);
-Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 2.f));
+Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 10.f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -105,12 +105,12 @@ int main( void )
     
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
-//
+
 //    //======================
 //    // prepare skybox
 //    //======================
-//    float skyboxScale = 500.f;
 //
+//    float skyboxScale = 500.f;
 //    Shader skyboxShader("shader/skybox.vs", "shader/skybox.fs");
 //    Skybox skybox(skyboxScale, &skyboxShader);
 //
@@ -118,17 +118,16 @@ int main( void )
 //    // prepare particle
 //    //======================
 //
-//    // Create and compile our GLSL program from the shaders
 //    Shader particleShader( "shader/particle.vs", "shader/particle.fs" );
 //    glm::vec3 particleCenter(0.f, 3.f, 7.f);
 //    Particles waterfall(particleCenter, &particleShader);
 //
 //
 //    //======================
-//    // prepare models
+//    // prepare mountain
 //    //======================
-//    // Create and compile our GLSL program from the shaders
-    Shader modelShader( "shader/model.vs", "shader/model.fs" );
+//
+//    Shader modelShader( "shader/model.vs", "shader/model.fs" );
 //
 //    glm::vec3 mountainCenter(1.42f, 0.1f, 0.f);
 //    glm::vec3 offset = sceneCenter - mountainCenter;
@@ -138,22 +137,30 @@ int main( void )
 //    mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, offset);
 //
 ////    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
-////    glm::vec3 shipCenter(0.f, 0.f, 0.f);
-////    glm::vec3 initPosition(0.f, 0.f, 300.f);
 //
-    Model ship("material/ship/ShipMoscow.obj", &modelShader);
-    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(0, 0, 8.f));
+//    //======================
+//    // prepare ship
+//    //======================
+//
+//    Model ship("material/ship/ShipMoscow.obj", &modelShader);
+//    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(0, 0, 8.f));
+//
+//    ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
+////    ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-40.f), glm::vec3(0,0,1));
+//    ship.ModelMatrix = glm::scale(ship.ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
 
-    ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
-    ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(0,0,1));
-    ship.ModelMatrix = glm::scale(ship.ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
+    //======================
+    // prepare water
+    //======================
 
-        //======================
-        // prepare water
-        //======================
-    
-        Shader waterShader("shader/water.vs", "shader/water.fs");
-        Water water(&waterShader);
+    Shader waterShader("shader/water.vs", "shader/water.fs");
+    Water water(&waterShader);
+    water.ModelMatrix = glm::rotate(water.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
+    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, 0.f, -1.3f));
+    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, -10.f, -1.3f));
+
+    water.ModelMatrix = glm::scale(water.ModelMatrix, glm::vec3(5.f, 5.f, 5.f));
+
 
     while( !glfwWindowShouldClose(window))
     {
@@ -179,7 +186,6 @@ int main( void )
               100.0f
               );
         glm::mat4 ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
-        glm::mat4 VP = ProjectionMatrix * ViewMatrix;
         glm::vec3 CameraPosition(glm::inverse(ViewMatrix)[3]);
 
         
@@ -187,16 +193,18 @@ int main( void )
         //======================
         // water render
         //======================
-        water.calcuWave(currentFrame);
-        water.draw(ModelMatrix, ViewMatrix,ProjectionMatrix, currentFrame);
         
+        
+        water.UpdateWave(currentFrame);
+        water.draw(ViewMatrix, ProjectionMatrix, currentFrame);
+//        
 //        //======================
 //        // terrain render
 //        //======================
 //
-//        mountain.draw(VP);
-        ship.draw(VP);
-
+//        skybox.draw(ViewProjectionMatrix);
+//        ship.draw(ViewProjectionMatrix);
+//
 //        //======================
 //        // particle render
 //        //======================
@@ -210,7 +218,7 @@ int main( void )
 //
 //
 //        waterfall.draw(ViewMatrix, ViewProjectionMatrix);
-//
+
         //======================
         // render end
         //======================
