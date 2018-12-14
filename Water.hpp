@@ -28,12 +28,12 @@
 
 
 
-glm::vec4 materAmbient(0.1, 0.1, 0.3, 1.0);
-glm::vec4 materSpecular(0.8, 0.8, 0.9, 1.0);
-glm::vec4 lightDiffuse(0.7, 0.7, 0.8, 1.0);
-glm::vec4 lightAmbient(0.0, 0.0, 0.0, 1.0);
-glm::vec4 lightSpecular(1.0, 1.0, 1.0, 1.0);
-glm::vec4 envirAmbient(0.1, 0.1, 0.3, 1.0);
+//glm::vec4 materAmbient(0.1, 0.1, 0.3, 1.0);
+//glm::vec4 materSpecular(0.8, 0.8, 0.9, 1.0);
+//glm::vec4 lightDiffuse(0.7, 0.7, 0.8, 1.0);
+//glm::vec4 lightAmbient(0.0, 0.0, 0.0, 1.0);
+//glm::vec4 lightSpecular(1.0, 1.0, 1.0, 1.0);
+//glm::vec4 envirAmbient(0.1, 0.1, 0.3, 1.0);
 
 
 //wave_length, wave_height, wave_dir, wave_speed, wave_start.x, wave_start.y
@@ -94,13 +94,13 @@ public:
         
         shader->use();
         
-        shader->setVec4("materAmbient", materAmbient);
-        shader->setVec4("materSpecular", materSpecular);
-        shader->setVec4("lightDiffuse", lightDiffuse);
-        shader->setVec4("lightAmbient", lightAmbient);
-        shader->setVec4("lightSpecular", lightSpecular);
-        shader->setVec4("envirAmbient", envirAmbient);
-        
+//        shader->setVec4("materAmbient", materAmbient);
+//        shader->setVec4("materSpecular", materSpecular);
+//        shader->setVec4("lightDiffuse", lightDiffuse);
+//        shader->setVec4("lightAmbient", lightAmbient);
+//        shader->setVec4("lightSpecular", lightSpecular);
+//        shader->setVec4("envirAmbient", envirAmbient);
+//
         initWave();
         
 
@@ -118,8 +118,8 @@ public:
         
         
         // set texture
-        diffuse_texture = loadJPG("material/lake.jpg");
-        shader->setInt("texture[0]", 0);
+        diffuse_texture = loadJPG("material/greenwater.png");
+        shader->setInt("texture", 0);
 
 
         glEnableVertexAttribArray(0);
@@ -140,7 +140,7 @@ public:
         
         shader->use();
 
-        shader->setFloat("time", currentFrame);
+//        shader->setFloat("time", currentFrame);
         shader->setMat4("modelViewMat", ModelViewMat);
         shader->setMat4("perspProjMat", Projection);
         shader->setMat4("normalMat", NormalMat);
@@ -160,7 +160,7 @@ public:
 
         glBindVertexArray(water_vertex_array);
         for(int c=0; c<(STRIP_COUNT-1); c++)
-            glDrawArrays(GL_TRIANGLES, STRIP_LENGTH*2*c, STRIP_LENGTH*2);
+            glDrawArrays(GL_TRIANGLE_STRIP, STRIP_LENGTH*2*c, STRIP_LENGTH*2);
         glBindVertexArray(0);
     }
     

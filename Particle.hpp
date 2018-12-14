@@ -25,7 +25,7 @@ struct Particle{
     }
 };
 
-const int MAXPARTICLES = 100000;
+const int MAXPARTICLES = 120000;
 
 // implies the relative position of container
 static const GLfloat g_container_vertex_data[] = {
@@ -173,7 +173,7 @@ public:
             particles_container[particleIndex].life = 1.5f;
             
             // init position
-            float radius = 12.5f;
+            float radius = 10.f;
             float theta = (rand()%1000)/1000.0f*3.14f-3.14f; // -pi~pi
             //            vec3 posOffset(((rand()%2000 - 1000.0f)/500.0f), 3.5f, -15.f);
             glm::vec3 posOffset(cos(theta)*radius-1.f, 3.5f, sin(theta)*radius-7.f);
@@ -196,9 +196,9 @@ public:
             particles_container[particleIndex].speed = (maindir + randomdir*spread) * velocity;
             
             // blue color with random alpha
-            particles_container[particleIndex].r = 0.1604 * 256;
-            particles_container[particleIndex].g = 0.5203 * 256;
-            particles_container[particleIndex].b = 0.6400 * 256 + 0.2 * (rand() % 256);
+            particles_container[particleIndex].r = 140;//0.1604 * 256;
+            particles_container[particleIndex].g = 198;//0.5203 * 256;
+            particles_container[particleIndex].b = 190 + 0.2 * (rand() % 256);;//0.6400 * 256 + 0.2 * (rand() % 256);
             particles_container[particleIndex].a = (rand() % 256) / 3 +150;
             
             // random size
