@@ -18,19 +18,21 @@ assimp: Open **As**set **Imp**ort Library--导入模型文件的扩展库
 
 ### 实现效果
 
-#### 包含元素
+1. 包含元素
 
-飞流而下的瀑布、环形山脉、起伏的水面、可移动的船、天空盒
+   飞流而下的瀑布、环形山脉、起伏的水面、可移动的船、天空盒
 
-####效果图
 
-水平面-仰视视角
+
+2. 效果图
+
+   水平面-仰视视角
 
 ![bottom-view](./material/readme-pics/bottom-view.png)
 
 
 
-瀑布顶端-俯视视角
+​	瀑布顶端-俯视视角
 
 ![up-view](./material/readme-pics/up-view.png)
 
