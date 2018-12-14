@@ -38,6 +38,7 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
+//glm::vec3 initCenter();
 glm::vec3 sceneCenter(0.f, 0.f, 0.f);
 Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 10.f));
 float lastX = (float)SCR_WIDTH / 2.0;
@@ -136,7 +137,7 @@ int main( void )
     Model mountain("material/mountain.obj", &modelShader);
     mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, offset);
 
-//    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
+    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
 
     //======================
     // prepare ship
@@ -146,9 +147,9 @@ int main( void )
     ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(0, 0, 8.f));
 
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
-//    ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-40.f), glm::vec3(0,0,1));
+    ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-40.f), glm::vec3(0,0,1));
     ship.ModelMatrix = glm::scale(ship.ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
-    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(0, 6.f, 0.f));
+    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(50.f, 20.f, 5.f));
 
     
     //======================
@@ -158,10 +159,10 @@ int main( void )
     Shader waterShader("shader/water.vs", "shader/water.fs");
     Water water(&waterShader);
     water.ModelMatrix = glm::rotate(water.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
-    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, 0.f, -1.3f));
+    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, -10.f, -1.3f));
 //    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, 0.f, -1.3f));
 
-    water.ModelMatrix = glm::scale(water.ModelMatrix, glm::vec3(5.f, 5.f, 5.f));
+    water.ModelMatrix = glm::scale(water.ModelMatrix, glm::vec3(10.f, 10.f, 10.f));
 
 
     while( !glfwWindowShouldClose(window))
@@ -201,10 +202,16 @@ int main( void )
         water.draw(ViewMatrix, ProjectionMatrix, currentFrame);
 
         //======================
-        // terrain render
+        // skybox render
         //======================
 
         skybox.draw(ViewProjectionMatrix);
+        
+        //======================
+        // model render
+        //======================
+        
+//        mountain.draw(ViewProjectionMatrix);
         ship.draw(ViewProjectionMatrix);
 
         //======================

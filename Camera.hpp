@@ -4,6 +4,9 @@
 //#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
+using std::cout;
+using std::endl;
 
 #include <vector>
 
@@ -112,6 +115,10 @@ public:
 
 		// Update Front, Right and Up Vectors using the updated Euler angles
 		updateCameraVectors();
+        
+        glm::vec3 temp = Position + Front;
+        cout<<"Look at : eye="<<Position.x<<" "<<Position.y<<" "<<Position.z<<endl;
+        cout<<"          center="<<temp.x<<" "<<temp.y<<" "<<temp.z<<endl;
 	}
 
 	// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
