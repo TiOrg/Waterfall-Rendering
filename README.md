@@ -26,13 +26,13 @@ assimp: Open **As**set **Imp**ort Library--导入模型文件的扩展库
 
 水平面-仰视视角
 
-![bottom-view](/Users/simon/Desktop/waterfall-project/Waterfall-Rendering/material/readme-pics/bottom-view.png)
+![bottom-view](./material/readme-pics/bottom-view.png)
 
 
 
 瀑布顶端-俯视视角
 
-![up-view](/Users/simon/Desktop/waterfall-project/Waterfall-Rendering/material/readme-pics/up-view.png)
+![up-view](./material/readme-pics/up-view.png)
 
 
 
