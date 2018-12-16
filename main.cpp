@@ -38,9 +38,15 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
-//glm::vec3 initCenter();
+
+glm::vec3 upCenter(9.42f, 11.f, -8.22f);
+Camera upCamera(upCenter, glm::vec3(-0.35f, 0.88f, 0.34f), -224.8, -26.9);
+
+
 glm::vec3 sceneCenter(0.f, 0.f, 0.f);
-Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 10.f));
+Camera *camera = &upCamera;
+
+Camera downCamera(sceneCenter+glm::vec3(0.f, 3.f, 15.f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -136,7 +142,6 @@ int main( void )
 
     Model mountain("material/mountain.obj", &modelShader);
     mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, offset);
-
     mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
 
     //======================
@@ -159,9 +164,7 @@ int main( void )
     Shader waterShader("shader/water.vs", "shader/water.fs");
     Water water(&waterShader);
     water.ModelMatrix = glm::rotate(water.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
-    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, -10.f, -1.3f));
-//    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, 0.f, -1.3f));
-
+    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, -10.f, -0.3f));
     water.ModelMatrix = glm::scale(water.ModelMatrix, glm::vec3(10.f, 10.f, 10.f));
 
 
@@ -181,9 +184,9 @@ int main( void )
 
         // MVP matrix
         glm::mat4 ModelMatrix = glm::mat4(1.0);
-        glm::mat4 ViewMatrix = camera.GetViewMatrix();
+        glm::mat4 ViewMatrix = camera->GetViewMatrix();
         glm::mat4 ProjectionMatrix = glm::perspective(
-              glm::radians(camera.Zoom),
+              glm::radians(camera->Zoom),
               (float)SCR_WIDTH / (float)SCR_HEIGHT,
               0.1f,
               100.0f
@@ -249,22 +252,34 @@ int main( void )
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        if( camera == &downCamera )
+        {
+//            camera = &upCamera;
+        }
+        else
+        {
+            camera = &downCamera;
+        }
+    }
+    
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        camera->ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        camera->ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        camera->ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        camera->ProcessKeyboard(RIGHT, deltaTime);
     
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-        camera.ProcessKeyboard(UPWORD, deltaTime);
+        camera->ProcessKeyboard(UPWORD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-        camera.ProcessKeyboard(DOWNWORD, deltaTime);
-
+        camera->ProcessKeyboard(DOWNWORD, deltaTime);
+    
 //    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 //        camera.ProcessKeyboard(MOVE_FORWARD, deltaTime);
 //    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
@@ -301,14 +316,14 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
     
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    camera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(yoffset);
+    camera->ProcessMouseScroll(yoffset);
 }
 
 

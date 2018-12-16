@@ -25,7 +25,7 @@ struct Particle{
     }
 };
 
-const int MAXPARTICLES = 120000;
+const int MAXPARTICLES = 150000;
 
 // implies the relative position of container
 static const GLfloat g_container_vertex_data[] = {
@@ -163,6 +163,8 @@ public:
         // Generate new particles each millisecond,
         // but limit this to 16 ms (60 fps), or if you have 1 long frame (1sec),
         // new particles will be huge and the next frame even longer.
+        
+//        int temp =sin(int(currentFrame * 8))*20;
 
         for(int i = 0; i < newparticles; i++){
             int particleIndex = FindUnusedParticle();
@@ -174,8 +176,13 @@ public:
             
             // init position
             float radius = 10.f;
-            float theta = (rand()%1000)/1000.0f*3.14f-3.14f; // -pi~pi
+            float theta = (rand()%1000)/1000.0f*1.3f*3.14f-1.15f*3.14f; // -pi~pi
             //            vec3 posOffset(((rand()%2000 - 1000.0f)/500.0f), 3.5f, -15.f);
+            
+//            int temp2 = int(-theta/0.524);
+//            if(temp % 6 == temp2)
+//                continue;
+//
             glm::vec3 posOffset(cos(theta)*radius-1.f, 3.5f, sin(theta)*radius-7.f);
             particles_container[particleIndex].pos = glm::vec3(system_center+posOffset);
             
@@ -183,11 +190,11 @@ public:
             // scale of diffuse
             float spread = 0.15f;
             // velocity is time-varying
-            float velocity = 13.f * (0.8f + 0.1f * (float) (sin(0.5 * currentFrame) + sin(1.31 * currentFrame)));
+            float velocity = 6.f * (0.8f + 0.1f * (float) (sin(0.5 * currentFrame) + sin(1.31 * currentFrame)));
             // front side speed
-            glm::vec3 maindir = glm::vec3(0.0f, 0.2f, 0.4f);
+//            glm::vec3 maindir = glm::vec3(0.0f, 0.2f, 0.4f);
             // round side speed
-            //            glm::vec3 maindir = glm::vec3(-0.4f*cos(theta), 0.2f, -0.4f*sin(theta));
+            glm::vec3 maindir = glm::vec3(-0.2f*cos(theta), 0.2f, -0.2f*sin(theta)+0.4f);
             glm::vec3 randomdir = glm::vec3(
                                             (rand()%2000 - 1000.0f)/1000.0f,
                                             (rand()%2000 - 1000.0f)/1000.0f,
@@ -229,16 +236,23 @@ public:
                     p.pos += p.speed * (float)deltaTime;
                     p.camera_distance = glm::length2( p.pos - CameraPosition );
                     
-//                    if( p.pos.y < 0 )
+//                    if( p.pos.y < 1.f && !p.flying)
 //                    {
-//                        p.speed = glm::vec3(0.0f, 5.8f, 0.0f);
-//                        p.size = 0.5;
+//                        p.flying = 1;
+//                        float tempx = (rand()%1000)/1000.f*p.speed.x * 2.f;
+//                        float tempy = (rand()%1000)/1000.f;
+//                        float tempz = (rand()%1000)/1000.f*p.speed.z * 2.f;
+//
+//                        p.pos = p.pos + glm::vec3(tempx, tempy * 5, tempz);
+//                        p.size = 1.f-tempy;
 //                        p.r = 255;
 //                        p.g = 255;
 //                        p.b = 255;
 //                        p.a = 255*0.1;
 //                    }
                     
+                    p.camera_distance = glm::length2( p.pos - CameraPosition );
+
                     // Fill the GPU buffer
                     g_particle_position_data[4*particles_count+0] = p.pos.x;
                     g_particle_position_data[4*particles_count+1] = p.pos.y;
