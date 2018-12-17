@@ -1,6 +1,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <vector>
 #include <algorithm>
@@ -136,13 +137,13 @@ int main( void )
 
     Shader modelShader( "shader/model.vs", "shader/model.fs" );
 
-    glm::vec3 mountainCenter(1.42f, 0.1f, 0.f);
-    glm::vec3 offset = sceneCenter - mountainCenter;
+//    glm::vec3 mountainCenter(1.42f, 0.1f, 0.f);
+//    glm::vec3 offset = sceneCenter - mountainCenter;
 
 
-    Model mountain("material/mountain.obj", &modelShader);
-    mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, offset);
-    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
+    Model mountain("material/mountain/plane-7.obj", &modelShader);
+    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(1/60.f, 1/60.f, 1/60.f));
+    mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, glm::vec3(0,0,-20.f));
 
     //======================
     // prepare ship
@@ -164,10 +165,19 @@ int main( void )
     Shader waterShader("shader/water.vs", "shader/water.fs");
     Water water(&waterShader);
     water.ModelMatrix = glm::rotate(water.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
-    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, -10.f, -0.3f));
+    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, -10.f, 0.7f));
     water.ModelMatrix = glm::scale(water.ModelMatrix, glm::vec3(10.f, 10.f, 10.f));
 
-
+    
+//    if(fork() == 0)
+//    {
+//        while(1)
+//        {
+//            system("afplay material/waterfall.mp3 -v 5");
+//        }
+//        exit(0);
+//    }
+    
     while( !glfwWindowShouldClose(window))
     {
         
@@ -214,7 +224,7 @@ int main( void )
         // model render
         //======================
         
-//        mountain.draw(ViewProjectionMatrix);
+        mountain.draw(ViewProjectionMatrix);
         ship.draw(ViewProjectionMatrix);
 
         //======================

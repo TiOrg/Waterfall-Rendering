@@ -172,10 +172,10 @@ public:
             // params of particles' moving are shown below
             
             // life span (s)
-            particles_container[particleIndex].life = 1.5f;
+            particles_container[particleIndex].life = 2.f;
             
             // init position
-            float radius = 10.f;
+            float radius = 13.f;
             float theta = (rand()%1000)/1000.0f*1.3f*3.14f-1.15f*3.14f; // -pi~pi
             //            vec3 posOffset(((rand()%2000 - 1000.0f)/500.0f), 3.5f, -15.f);
             
@@ -194,7 +194,7 @@ public:
             // front side speed
 //            glm::vec3 maindir = glm::vec3(0.0f, 0.2f, 0.4f);
             // round side speed
-            glm::vec3 maindir = glm::vec3(-0.2f*cos(theta), 0.2f, -0.2f*sin(theta)+0.4f);
+            glm::vec3 maindir = glm::vec3(-0.4f*cos(theta), 0.2f, -0.4f*sin(theta)+0.2f);
             glm::vec3 randomdir = glm::vec3(
                                             (rand()%2000 - 1000.0f)/1000.0f,
                                             (rand()%2000 - 1000.0f)/1000.0f,
@@ -232,7 +232,7 @@ public:
                 if (p.life > 0.0f)
                 {
                     // Simulate simple physics : gravity only, no collisions
-                    p.speed += glm::vec3(0.0f,-9.81f, 0.0f) * (float)deltaTime;
+                    p.speed += glm::vec3(0.0f,-4.81f, 0.0f) * (float)deltaTime;
                     p.pos += p.speed * (float)deltaTime;
                     p.camera_distance = glm::length2( p.pos - CameraPosition );
                     
