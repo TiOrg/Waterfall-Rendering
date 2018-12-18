@@ -89,7 +89,7 @@ public:
 			Position -= Right * velocity;
 		else if (direction == RIGHT)
 			Position += Right * velocity;
-        else if (direction == DOWNWORD)
+        else if (direction == DOWNWORD && Position.y >= 2.f)
             Position -= Up * velocity;
         else if (direction == UPWORD)
             Position += Up * velocity;

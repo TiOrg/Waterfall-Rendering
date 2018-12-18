@@ -57,9 +57,14 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+// ship noise
 float rotate_offset = 0.f;
 int rotate_dir = -1;
-float min_offset = 5;
+float max_left = 5;
+
+float height_offset = 0.f;
+int height_dir = -1;
+float max_down = 0.2f;
 
 int main( void )
 {
@@ -161,7 +166,7 @@ int main( void )
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-40.f), glm::vec3(0,0,1));
     ship.ModelMatrix = glm::scale(ship.ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
-    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(50.f, 0.f, 17.5f));
+    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(50.f, 0.f, 17.4f));
 
     
     //======================
@@ -320,6 +325,7 @@ void processInput(GLFWwindow *window)
     const float translate_v = 5.f;
     const float turn_v = 0.2f;
     const float rotate_v = 0.1f;
+    const float float_v = 0.005f;
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
@@ -351,15 +357,23 @@ void processInput(GLFWwindow *window)
     }
     else
     {
-        if((rotate_offset < -min_offset && rotate_dir == -1) || (rotate_offset > min_offset && rotate_dir == 1))
+        if((rotate_offset < -max_left && rotate_dir == -1) || (rotate_offset > max_left && rotate_dir == 1))
         {
-            min_offset = (rand()%1000/1000.f) * 8.f + 3.f;
+            max_left = (rand()%1000/1000.f) * 8.f + 3.f;
             rotate_dir = -rotate_dir;
         }
         
         float single_rotate = (rand()%2+1) * rotate_dir * rotate_v;
         rotate_offset += single_rotate;
         p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, glm::radians(single_rotate), glm::vec3(1,0,0));
+        
+        
+        if((height_offset < -0.2) || (height_offset > 0.2))
+            height_dir = -height_dir;
+        
+        float single_translate = (rand()%2+1) * height_dir * float_v;
+        height_offset += single_translate;
+        p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, glm::vec3(0,0,single_translate));
     }
 }
 
