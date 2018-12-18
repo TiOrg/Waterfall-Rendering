@@ -166,7 +166,7 @@ int main( void )
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-40.f), glm::vec3(0,0,1));
     ship.ModelMatrix = glm::scale(ship.ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
-    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(50.f, 0.f, 17.4f));
+    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(50.f, 0.f, 17.3f));
 
     
     //======================
