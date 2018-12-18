@@ -203,9 +203,9 @@ public:
             particles_container[particleIndex].speed = (maindir + randomdir*spread) * velocity;
             
             // blue color with random alpha
-            particles_container[particleIndex].r = 76;//0.1604 * 256;
-            particles_container[particleIndex].g = 129;//0.5203 * 256;
-            particles_container[particleIndex].b = 190 + 0.12 * (rand() % 256);//0.6400 * 256 + 0.2 * (rand() % 256);
+            particles_container[particleIndex].r = 76;//+ 0.02 * (rand() % 256);//0.1604 * 256;
+            particles_container[particleIndex].g = 129+ 0.05 * (rand() % 256);//0.5203 * 256;
+            particles_container[particleIndex].b = 186 + 0.18 * (rand() % 256);//0.6400 * 256 + 0.2 * (rand() % 256);
             particles_container[particleIndex].a = (rand() % 256) / 3 +160;
             
             // random size

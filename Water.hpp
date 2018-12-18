@@ -63,7 +63,7 @@ public:
         shader->use();
         
         
-        diffuseMap = loadJPG("material/5.jpg");
+        diffuseMap = loadJPG("material/test.png");
         normalMap = loadJPG("material/1.png");
 
         initWave();

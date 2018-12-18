@@ -40,8 +40,8 @@ const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
 
-glm::vec3 upCenter(9.42f, 11.f, -8.22f);
-Camera upCamera(upCenter, glm::vec3(-0.35f, 0.88f, 0.34f), -224.8, -26.9);
+glm::vec3 upCenter(0.f, 20.f, 1.f);
+Camera upCamera(upCenter, glm::vec3(0.f, -1.f, 0.f), -268.6f, -80.5f);
 
 
 glm::vec3 sceneCenter(0.f, 0.f, 0.f);
