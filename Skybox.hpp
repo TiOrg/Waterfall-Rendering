@@ -10,6 +10,8 @@
 #define Skybox_h
 
 #include "tools/texture.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 float skyboxVertices[] = {
     // positions
@@ -79,6 +81,11 @@ public:
     {
         shader = skyboxShader;
         
+        glm::mat4 Model = glm::mat4(1.0);
+        Model = glm::rotate(Model, glm::radians(-90.f), glm::vec3(0,1,0));
+        shader->use();
+        
+        shader->setMat4("Model",Model);
         // skybox VAO
         glGenVertexArrays(1, &skybox_vertex_array);
         glBindVertexArray(skybox_vertex_array);
