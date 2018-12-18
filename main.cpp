@@ -57,6 +57,10 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+float rotate_offset = 0.f;
+int rotate_dir = -1;
+float min_offset = 5;
+
 int main( void )
 {
 	// Initialise GLFW
@@ -157,7 +161,7 @@ int main( void )
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-40.f), glm::vec3(0,0,1));
     ship.ModelMatrix = glm::scale(ship.ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
-    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(50.f, 0.f, 17.9f));
+    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(50.f, 0.f, 17.5f));
 
     
     //======================
@@ -198,6 +202,7 @@ int main( void )
 //        exit(0);
 //    }
     
+
     while( !glfwWindowShouldClose(window))
     {
         
@@ -244,6 +249,8 @@ int main( void )
         
         mountain.draw(ViewProjectionMatrix);
         ship.draw(ViewProjectionMatrix);
+        
+
 
         //======================
         // particle render
@@ -311,7 +318,9 @@ void processInput(GLFWwindow *window)
     
     glm::vec3 ship_front(1.f, 0, 0);
     const float translate_v = 5.f;
-    const float rotate_v = 0.2f;
+    const float turn_v = 0.2f;
+    const float rotate_v = 0.1f;
+
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
         p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, deltaTime * (-translate_v) * ship_front);
@@ -322,13 +331,35 @@ void processInput(GLFWwindow *window)
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
     {
+        if(rotate_offset!=0)
+        {
+            p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, glm::radians(-rotate_offset), glm::vec3(1,0,0));
+            rotate_offset = 0;
+        }
         p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, deltaTime * (-translate_v) * ship_front * 0.4f);
-        p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, rotate_v * deltaTime, glm::vec3(0, 0, 1));
+        p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, turn_v * deltaTime, glm::vec3(0, 0, 1));
     }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
+        if(rotate_offset!=0)
+        {
+            p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, glm::radians(-rotate_offset), glm::vec3(1,0,0));
+            rotate_offset = 0;
+        }
         p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, deltaTime * (-translate_v) * ship_front * 0.4f);
-        p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, -rotate_v * deltaTime, glm::vec3(0, 0, 1));
+        p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, -turn_v * deltaTime, glm::vec3(0, 0, 1));
+    }
+    else
+    {
+        if((rotate_offset < -min_offset && rotate_dir == -1) || (rotate_offset > min_offset && rotate_dir == 1))
+        {
+            min_offset = (rand()%1000/1000.f) * 8.f + 3.f;
+            rotate_dir = -rotate_dir;
+        }
+        
+        float single_rotate = (rand()%2+1) * rotate_dir * rotate_v;
+        rotate_offset += single_rotate;
+        p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, glm::radians(single_rotate), glm::vec3(1,0,0));
     }
 }
 
