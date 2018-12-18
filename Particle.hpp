@@ -25,7 +25,7 @@ struct Particle{
     }
 };
 
-const int MAXPARTICLES = 150000;
+const int MAXPARTICLES = 50000;
 
 // implies the relative position of container
 static const GLfloat g_container_vertex_data[] = {
@@ -175,8 +175,8 @@ public:
             particles_container[particleIndex].life = 2.f;
             
             // init position
-            float radius = 13.f;
-            float theta = (rand()%1000)/1000.0f*1.3f*3.14f-1.15f*3.14f; // -pi~pi
+            float radius = 10.f;
+            float theta = (rand()%1000)/1000.0f*0.8f*3.14f-0.9f*3.14f; // -pi~pi
             //            vec3 posOffset(((rand()%2000 - 1000.0f)/500.0f), 3.5f, -15.f);
             
 //            int temp2 = int(-theta/0.524);
@@ -190,7 +190,7 @@ public:
             // scale of diffuse
             float spread = 0.15f;
             // velocity is time-varying
-            float velocity = 6.f * (0.8f + 0.1f * (float) (sin(0.5 * currentFrame) + sin(1.31 * currentFrame)));
+            float velocity = 4.f;
             // front side speed
 //            glm::vec3 maindir = glm::vec3(0.0f, 0.2f, 0.4f);
             // round side speed
