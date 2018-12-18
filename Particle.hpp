@@ -25,7 +25,7 @@ struct Particle{
     }
 };
 
-const int MAXPARTICLES = 50000;
+const int MAXPARTICLES = 80000;
 
 // implies the relative position of container
 static const GLfloat g_container_vertex_data[] = {
@@ -176,7 +176,7 @@ public:
             
             // init position
             float radius = 10.f;
-            float theta = (rand()%1000)/1000.0f*0.8f*3.14f-0.9f*3.14f; // -pi~pi
+            float theta = (rand()%1000)/1000.0f*0.8f*3.14f-0.87f*3.14f; // -pi~pi
             //            vec3 posOffset(((rand()%2000 - 1000.0f)/500.0f), 3.5f, -15.f);
             
 //            int temp2 = int(-theta/0.524);
@@ -188,7 +188,7 @@ public:
             
             // init speed direction
             // scale of diffuse
-            float spread = 0.15f;
+            float spread = 0.2f;
             // velocity is time-varying
             float velocity = 4.f;
             // front side speed
@@ -203,10 +203,10 @@ public:
             particles_container[particleIndex].speed = (maindir + randomdir*spread) * velocity;
             
             // blue color with random alpha
-            particles_container[particleIndex].r = 90;//0.1604 * 256;
-            particles_container[particleIndex].g = 128;//0.5203 * 256;
-            particles_container[particleIndex].b = 128 + 0.2 * (rand() % 256);;//0.6400 * 256 + 0.2 * (rand() % 256);
-            particles_container[particleIndex].a = (rand() % 256) / 3 +150;
+            particles_container[particleIndex].r = 76;//0.1604 * 256;
+            particles_container[particleIndex].g = 129;//0.5203 * 256;
+            particles_container[particleIndex].b = 190 + 0.12 * (rand() % 256);//0.6400 * 256 + 0.2 * (rand() % 256);
+            particles_container[particleIndex].a = (rand() % 256) / 3 +160;
             
             // random size
             if(randomdir.z > 0.9f) // particles outside is smaller
@@ -232,9 +232,10 @@ public:
                 if (p.life > 0.0f)
                 {
                     // Simulate simple physics : gravity only, no collisions
-                    p.speed += glm::vec3(0.0f,-4.81f, 0.0f) * (float)deltaTime;
+                    p.speed += glm::vec3(0.0f,-3.81f, 0.0f) * (float)deltaTime;
                     p.pos += p.speed * (float)deltaTime;
                     p.camera_distance = glm::length2( p.pos - CameraPosition );
+                    p.a = p.pos.y * 255 / 6.f;
                     
 //                    if( p.pos.y < 1.f && !p.flying)
 //                    {
@@ -311,6 +312,7 @@ public:
         // Draw particles
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particles_count);
         glBindVertexArray(0);
+        
     }
   
 private:

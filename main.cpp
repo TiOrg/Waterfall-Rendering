@@ -137,7 +137,7 @@ int main( void )
     //======================
 
     Shader particleShader( "shader/particle.vs", "shader/particle.fs" );
-    glm::vec3 particleCenter(2.f, 3.f, 10.f);
+    glm::vec3 particleCenter(2.f, 2.5f, 10.f);
     Particles waterfall(particleCenter, &particleShader);
 
 
@@ -180,7 +180,7 @@ int main( void )
     water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(-10.f, 0.8f, -6.5f));
 
     waterShader.use();
-    glm::vec3 lightPos(0.0f, -20.0f, 0.0f);
+    glm::vec3 lightPos(0.0f, -20.0f, 2.0f);
     GLfloat materAmbient[] = { 0.1, 0.1, 0.3, 1.0 };
     GLfloat materSpecular[] = { 0.8, 0.8, 0.9, 1.0 };
     GLfloat lightDiffuse[] = { 0.7, 0.7, 0.8, 1.0 };
@@ -371,7 +371,7 @@ void processInput(GLFWwindow *window)
         if((height_offset < -0.2) || (height_offset > 0.2))
             height_dir = -height_dir;
         
-        float single_translate = (rand()%2+1) * height_dir * float_v;
+        float single_translate =  height_dir * float_v;
         height_offset += single_translate;
         p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, glm::vec3(0,0,single_translate));
     }

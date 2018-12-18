@@ -63,8 +63,8 @@ public:
         shader->use();
         
         
-        diffuseMap = loadJPG("material/greenwater.png");
-        normalMap = loadJPG("material/water-texture-2-normal.tga");
+        diffuseMap = loadJPG("material/5.jpg");
+        normalMap = loadJPG("material/1.png");
 
         initWave();
         shader->setInt("diffuseMap", 0);
