@@ -11,79 +11,47 @@
 
 #include "tools/texture.hpp"
 
-
-#define START_X        -4.0
-#define START_Y        -2.5
-#define START_Z        0
-#define LENGTH_X    0.1
-#define LENGTH_Y    0.1
-
-#define HEIGHT_SCALE    1.6
-
-#define WAVE_COUNT        6
-
-#define STRIP_COUNT        80
-#define STRIP_LENGTH    50
-#define DATA_LENGTH        STRIP_LENGTH*2*(STRIP_COUNT-1)
+#define STRIP_COUNT        150
+#define STRIP_LENGTH    150
+#define DATA_LENGTH        STRIP_LENGTH * 2 * (STRIP_COUNT-1)
 
 
+const GLfloat PI=3.1415926;
 
-//glm::vec4 materAmbient(0.1, 0.1, 0.3, 1.0);
-//glm::vec4 materSpecular(0.8, 0.8, 0.9, 1.0);
-//glm::vec4 lightDiffuse(0.7, 0.7, 0.8, 1.0);
-//glm::vec4 lightAmbient(0.0, 0.0, 0.0, 1.0);
-//glm::vec4 lightSpecular(1.0, 1.0, 1.0, 1.0);
-//glm::vec4 envirAmbient(0.1, 0.1, 0.3, 1.0);
-
-
-//wave_length, wave_height, wave_dir, wave_speed, wave_start.x, wave_start.y
-static const GLfloat wave_para[6][6] = {
-    {    1.6,    0.12,    0.9,    0.06,    0.0,    0.0    },
-    {    1.3,    0.1,    1.14,    0.09,    0.0,    0.0    },
-    {    0.2,    0.01,    0.8,    0.08,    0.0,    0.0    },
-    {    0.18,    0.008,    1.05,    0.1,    0.0,    0.0    },
-    {    0.23,    0.005,    1.15,    0.09,    0.0,    0.0    },
-    {    0.12,    0.003,    0.97,    0.14,    0.0,    0.0    }
+GLfloat wave_para2[3][5] =
+{  //波长     振幅      波矢量     角速度
+    {0.003,     0.025,    1.0,0.0,      PI},
+    {0.005,     0.025,    0.0,1.0,     2*PI},
+    {0.008,     0.025,    1.0,1.0,     3*PI}
 };
 
-static const GLfloat gerstner_pt_a[22] = {
-    0.0,0.0, 41.8,1.4, 77.5,5.2, 107.6,10.9,
-    132.4,17.7, 152.3,25.0, 167.9,32.4, 179.8,39.2,
-    188.6,44.8, 195.0,48.5, 200.0,50.0
-};
-static const GLfloat gerstner_pt_b[22] = {
-    0.0,0.0, 27.7,1.4, 52.9,5.2, 75.9,10.8,
-    97.2,17.6, 116.8,25.0, 135.1,32.4, 152.4,39.2,
-    168.8,44.8, 184.6,48.5, 200.0,50.0
-};
-static const GLint gerstner_sort[6] = {
-    0, 0, 1, 1, 1, 1
-};
 
 class Water
 {
 private:
+    
     GLuint water_vertex_array;
     GLuint water_vertex_buffer;
     GLuint water_normal_buffer;
 
-    GLuint diffuse_texture;
-    GLuint normal_texture;
-
+    
     Shader *shader;
     
+    GLfloat pt_strip[STRIP_COUNT * STRIP_LENGTH * 3] = { 0 };
+    GLfloat pt_strip2[STRIP_COUNT * STRIP_LENGTH * 3] = { 0 };
+    GLfloat pt_normal[STRIP_COUNT * STRIP_LENGTH * 3] = { 0 };
     
-    GLfloat pt_strip[STRIP_COUNT*STRIP_LENGTH*3] = {0};
-    GLfloat pt_normal[STRIP_COUNT*STRIP_LENGTH*3] = {0};
-    GLfloat vertex_data[DATA_LENGTH*3] = {0};
-    GLfloat normal_data[DATA_LENGTH*3] = {0};
+    struct DATAS
+    {
+        GLfloat vertex_data[3];
+        GLfloat normal_data[3];
+        GLfloat texcoord_data[2];
+        GLfloat tangents[3];
+        GLfloat bitangents[3];
+    }VBOdata[DATA_LENGTH];
     
-    GLfloat wave_length[WAVE_COUNT];
-    GLfloat wave_height[WAVE_COUNT];
-    GLfloat wave_dir[WAVE_COUNT];
-    GLfloat wave_speed[WAVE_COUNT];
-    GLfloat wave_start[WAVE_COUNT*2];
-    
+    GLuint diffuseMap;
+    GLuint normalMap;
     
 public:
     glm::mat4 ModelMatrix = glm::mat4(1.0);
@@ -94,15 +62,13 @@ public:
         
         shader->use();
         
-//        shader->setVec4("materAmbient", materAmbient);
-//        shader->setVec4("materSpecular", materSpecular);
-//        shader->setVec4("lightDiffuse", lightDiffuse);
-//        shader->setVec4("lightAmbient", lightAmbient);
-//        shader->setVec4("lightSpecular", lightSpecular);
-//        shader->setVec4("envirAmbient", envirAmbient);
-//
-        initWave();
         
+        diffuseMap = loadJPG("material/greenwater.png");
+        normalMap = loadJPG("material/water-texture-2-normal.tga");
+
+        initWave();
+        shader->setInt("diffuseMap", 0);
+        shader->setInt("normalMap", 1);
 
         glGenVertexArrays(1, &water_vertex_array);
         glBindVertexArray(water_vertex_array);
@@ -110,53 +76,43 @@ public:
         
         glGenBuffers(1, &water_vertex_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, water_vertex_buffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), NULL, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VBOdata), VBOdata, GL_STATIC_DRAW);
         
-        glGenBuffers(1, &water_normal_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, water_normal_buffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(normal_data), NULL, GL_STATIC_DRAW);
-        
-        
-        // set texture
-        diffuse_texture = loadJPG("material/greenwater.png");
-        shader->setInt("texture", 0);
 
 
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, water_vertex_buffer);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, water_normal_buffer);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)(11 * sizeof(GLfloat)));
         
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
     
-    void draw(glm::mat4 ViewMatrix,glm::mat4 Projection, float currentFrame)
+    void draw(glm::mat4 ViewMatrix,glm::mat4 ProjectionMatrix, float currentFrame)
     {
-        glm::mat4 ModelViewMat = ViewMatrix * ModelMatrix;
-        glm::mat3 NormalMat = glm::transpose(glm::inverse(glm::mat3(ModelViewMat)));
-        
         shader->use();
-
-//        shader->setFloat("time", currentFrame);
-        shader->setMat4("modelViewMat", ModelViewMat);
-        shader->setMat4("perspProjMat", Projection);
-        shader->setMat4("normalMat", NormalMat);
+        shader->setMat4("view", ViewMatrix);
+        shader->setMat4("projection", ProjectionMatrix);
+        shader->setMat4("model", ModelMatrix);
         
-   
         glBindBuffer(GL_ARRAY_BUFFER, water_vertex_buffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VBOdata), VBOdata, GL_STATIC_DRAW);
         
-        glBindBuffer(GL_ARRAY_BUFFER, water_normal_buffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(normal_data), normal_data, GL_STATIC_DRAW);
-        
-        
+    
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuse_texture);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
         
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normalMap);
         
+    
 
         glBindVertexArray(water_vertex_array);
         for(int c=0; c<(STRIP_COUNT-1); c++)
@@ -167,212 +123,186 @@ public:
 private:
     void initWave(void)
     {
-        //Initialize values{}
-        for(int w=0; w<WAVE_COUNT; w++)
+        int index = 0;
+        for (int i = 0; i<STRIP_COUNT; i++)
         {
-            wave_length[w] = wave_para[w][0];
-            wave_height[w] = wave_para[w][1];
-            wave_dir[w] = wave_para[w][2];
-            wave_speed[w] = wave_para[w][3];
-            wave_start[w*2] = wave_para[w][4];
-            wave_start[w*2+1] = wave_para[w][5];
-        }
-        
-        //Initialize pt_strip[]
-        int index=0;
-        for(int i=0; i<STRIP_COUNT; i++)
-        {
-            for(int j=0; j<STRIP_LENGTH; j++)
+            for (int j = 0; j<STRIP_LENGTH; j++)
             {
-                pt_strip[index] = START_X + i*LENGTH_X;
-                pt_strip[index+1] = START_Y + j*LENGTH_Y;
+                float t = 0.1f;
+                pt_strip[index] = -1.0f + i * t;
+                pt_strip[index + 1] = 0.0f;
+                pt_strip[index + 2] = -1.0f + j * t;
+                pt_strip2[index] = -1.0f + i * t;
+                pt_strip2[index + 1] = 0.0f;
+                pt_strip2[index + 2] = -1.0f + j * t;
                 index += 3;
             }
         }
     }
     
     
-    static float gerstnerZ(float w_length, float w_height, float x_in, const GLfloat gerstner[22])
+    void tangentandbitangent(GLint x)
     {
-        x_in = x_in * 400.0 / w_length;
+        int x1, x2, x3;
+        if (x % 2 == 0)
+        {
+            x1 = x - 2;
+            x2 = x - 1;
+            x3 = x;
+        }
+        else
+        {
+            x1 = x - 1;
+            x2 = x - 2;
+            x3 = x;
+        }
+        glm::vec3 pos1 = glm::vec3(VBOdata[x1].vertex_data[0], VBOdata[x1].vertex_data[1], VBOdata[x1].vertex_data[2]);
+        glm::vec3 pos2 = glm::vec3(VBOdata[x2].vertex_data[0], VBOdata[x2].vertex_data[1], VBOdata[x2].vertex_data[2]);
+        glm::vec3 pos3 = glm::vec3(VBOdata[x3].vertex_data[0], VBOdata[x3].vertex_data[1], VBOdata[x3].vertex_data[2]);
         
-        while(x_in < 0.0)
-            x_in += 400.0;
-        while(x_in > 400.0)
-            x_in -= 400.0;
-        if(x_in > 200.0)
-            x_in = 400.0 - x_in;
+        glm::vec2 uv1 = glm::vec2(VBOdata[x1].texcoord_data[0], VBOdata[x1].texcoord_data[1]);
+        glm::vec2 uv2 = glm::vec2(VBOdata[x2].texcoord_data[0], VBOdata[x2].texcoord_data[1]);
+        glm::vec2 uv3 = glm::vec2(VBOdata[x3].texcoord_data[0], VBOdata[x3].texcoord_data[1]);
         
-        int i = 0;
-        float yScale = w_height/50.0;
-        while(i<18 && (x_in<gerstner[i] || x_in>=gerstner[i+2]))
-            i+=2;
-        if(x_in == gerstner[i])
-            return gerstner[i+1] * yScale;
-        if(x_in > gerstner[i])
-            return ((gerstner[i+3]-gerstner[i+1]) * (x_in-gerstner[i]) / (gerstner[i+2]-gerstner[i]) + gerstner[i+3]) * yScale;
-        return 0;
+        glm::vec3 edge1 = pos2 - pos1;
+        glm::vec3 edge2 = pos3 - pos1;
+        glm::vec2 deltaUV1 = uv2 - uv1;
+        glm::vec2 deltaUV2 = uv3 - uv1;
+        
+        GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+        
+        glm::vec3 tangent, bitangent;
+        
+        tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+        tangent = glm::normalize(tangent);
+        
+        bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+        bitangent = glm::normalize(bitangent);
+        
+        VBOdata[x1].tangents[0] = VBOdata[x2].tangents[0] = VBOdata[x3].tangents[0] = tangent.x;
+        VBOdata[x1].tangents[1] = VBOdata[x2].tangents[1] = VBOdata[x3].tangents[1] = tangent.y;
+        VBOdata[x1].tangents[2] = VBOdata[x2].tangents[2] = VBOdata[x3].tangents[2] = tangent.z;
+        
+        VBOdata[x1].bitangents[0] = VBOdata[x2].bitangents[0] = VBOdata[x3].bitangents[0] = bitangent.x;
+        VBOdata[x1].bitangents[1] = VBOdata[x2].bitangents[1] = VBOdata[x3].bitangents[1] = bitangent.y;
+        VBOdata[x1].bitangents[2] = VBOdata[x2].bitangents[2] = VBOdata[x3].bitangents[2] = bitangent.z;
+        
     }
     
-    
-    static int normalizeF(float in[], float out[], int count)
-    {
-        int t=0;
-        float l = 0.0;
-        
-        if(count <= 0.0){
-            printf("normalizeF(): Number of dimensions should be larger than zero.\n");
-            return 1;
-        }
-        while(t<count && in[t]<0.0000001 && in[t]>-0.0000001){
-            t++;
-        }
-        if(t == count){
-            printf("normalizeF(): The input vector is too small.\n");
-            return 1;
-        }
-        for(t=0; t<count; t++)
-            l += in[t] * in[t];
-        if(l < 0.0000001){
-            l = 0.0;
-            for(t=0; t<count; t++)
-                in[t] *= 10000.0;
-            for(t=0; t<count; t++)
-                l += in[t] * in[t];
-        }
-        l = sqrt(l);
-        for(t=0; t<count; t++)
-            out[t] /= l;
-        
-        return 0;
-    }
     
 public:
     void UpdateWave(float time)
     {
-        //Calculate pt_strip[z], poly_normal[] and pt_normal[]
-        int index=0;
-        float d, wave;
-        for(int i=0; i<STRIP_COUNT; i++)
+        int index = 0;
+        for (int i = 0; i<STRIP_COUNT; i++)
         {
-            for(int j=0; j<STRIP_LENGTH; j++)
+            for (int j = 0; j<STRIP_LENGTH; j++)
             {
-                wave = 0.0;
-                for(int w=0; w<WAVE_COUNT; w++){
-                    d = (pt_strip[index] - wave_start[w*2] + (pt_strip[index+1] - wave_start[w*2+1]) * tan(wave_dir[w])) * cos(wave_dir[w]);
-                    if(gerstner_sort[w] == 1){
-                        wave += wave_height[w] - gerstnerZ(wave_length[w], wave_height[w], d + wave_speed[w] * time, gerstner_pt_a);
-                    }else{
-                        wave += wave_height[w] - gerstnerZ(wave_length[w], wave_height[w], d + wave_speed[w] * time, gerstner_pt_b);
-                    }
+                glm::vec2 offset = glm::vec2(0.0f, 0.0f);
+                GLfloat height = 0.0f;
+                for (int k = 0; k < 3; k++)
+                {
+                    glm::vec2 K = glm::vec2(wave_para2[k][2], wave_para2[k][3]);
+                    GLfloat Qi = 1 / (wave_para2[k][4] * wave_para2[k][1])*0.15;
+                    GLfloat p = wave_para2[k][4] * dot(K, glm::vec2(pt_strip2[index], pt_strip2[index + 2])) + glfwGetTime();
+                    
+                    offset.x += Qi * wave_para2[k][1] * K.x*cos(p);
+                    offset.y += Qi * wave_para2[k][1] * K.y*cos(p);
+                    height += wave_para2[k][1] * sin(p);
                 }
-                pt_strip[index+2] = START_Z + wave*HEIGHT_SCALE;
+                pt_strip[index] = pt_strip2[index] + offset.x;
+                pt_strip[index + 1] = height;
+                pt_strip[index + 2] = pt_strip2[index + 2] + offset.y;
                 index += 3;
             }
         }
         
         index = 0;
-        for(int i=0; i<STRIP_COUNT; i++)
+        for (int i = 0; i<STRIP_COUNT; i++)
         {
-            for(int j=0; j<STRIP_LENGTH; j++)
+            for (int j = 0; j<STRIP_LENGTH; j++)
             {
-                int p0 = index-STRIP_LENGTH*3, p1 = index+3, p2 = index+STRIP_LENGTH*3, p3 = index-3;
+                int p0 = index - STRIP_LENGTH * 3, p1 = index + 3, p2 = index + STRIP_LENGTH * 3, p3 = index - 3;
                 float xa, ya, za, xb, yb, zb;
-                if(i > 0){
-                    if(j > 0){
-                        xa = pt_strip[p0] - pt_strip[index];
-                        ya = pt_strip[p0+1] - pt_strip[index+1];
-                        za = pt_strip[p0+2] - pt_strip[index+2];
-                        xb = pt_strip[p3] - pt_strip[index];
-                        yb = pt_strip[p3+1] - pt_strip[index+1];
-                        zb = pt_strip[p3+2] - pt_strip[index+2];
-                        pt_normal[index] += ya*zb-yb*za;
-                        pt_normal[index+1] += xb*za-xa*zb;
-                        pt_normal[index+2] += xa*yb-xb*ya;
+                if (i > 0)
+                {
+                    if (j > 0)
+                    {
+                        xa = pt_strip[p0] - pt_strip[index], ya = pt_strip[p0 + 1] - pt_strip[index + 1], za = pt_strip[p0 + 2] - pt_strip[index + 2];
+                        xb = pt_strip[p3] - pt_strip[index], yb = pt_strip[p3 + 1] - pt_strip[index + 1], zb = pt_strip[p3 + 2] - pt_strip[index + 2];
+                        pt_normal[index] += ya*zb - yb*za;
+                        pt_normal[index + 1] += xb*za - xa*zb;
+                        pt_normal[index + 2] += xa*yb - xb*ya;
                     }
-                    if(j < STRIP_LENGTH-1){
-                        xa = pt_strip[p1] - pt_strip[index];
-                        ya = pt_strip[p1+1] - pt_strip[index+1];
-                        za = pt_strip[p1+2] - pt_strip[index+2];
-                        xb = pt_strip[p0] - pt_strip[index];
-                        yb = pt_strip[p0+1] - pt_strip[index+1];
-                        zb = pt_strip[p0+2] - pt_strip[index+2];
-                        pt_normal[index] += ya*zb-yb*za;
-                        pt_normal[index+1] += xb*za-xa*zb;
-                        pt_normal[index+2] += xa*yb-xb*ya;
+                    if (j < STRIP_LENGTH - 1)
+                    {
+                        xa = pt_strip[p1] - pt_strip[index], ya = pt_strip[p1 + 1] - pt_strip[index + 1], za = pt_strip[p1 + 2] - pt_strip[index + 2];
+                        xb = pt_strip[p0] - pt_strip[index], yb = pt_strip[p0 + 1] - pt_strip[index + 1], zb = pt_strip[p0 + 2] - pt_strip[index + 2];
+                        pt_normal[index] += ya*zb - yb*za;
+                        pt_normal[index + 1] += xb*za - xa*zb;
+                        pt_normal[index + 2] += xa*yb - xb*ya;
                     }
                 }
-                if(i < STRIP_COUNT-1){
-                    if(j > 0){
-                        xa = pt_strip[p3] - pt_strip[index];
-                        ya = pt_strip[p3+1] - pt_strip[index+1];
-                        za = pt_strip[p3+2] - pt_strip[index+2];
-                        xb = pt_strip[p2] - pt_strip[index];
-                        yb = pt_strip[p2+1] - pt_strip[index+1];
-                        zb = pt_strip[p2+2] - pt_strip[index+2];
-                        pt_normal[index] += ya*zb-yb*za;
-                        pt_normal[index+1] += xb*za-xa*zb;
-                        pt_normal[index+2] += xa*yb-xb*ya;
+                if (i < STRIP_COUNT - 1)
+                {
+                    if (j > 0)
+                    {
+                        xa = pt_strip[p3] - pt_strip[index], ya = pt_strip[p3 + 1] - pt_strip[index + 1], za = pt_strip[p3 + 2] - pt_strip[index + 2];
+                        xb = pt_strip[p2] - pt_strip[index], yb = pt_strip[p2 + 1] - pt_strip[index + 1], zb = pt_strip[p2 + 2] - pt_strip[index + 2];
+                        pt_normal[index] += ya*zb - yb*za;
+                        pt_normal[index + 1] += xb*za - xa*zb;
+                        pt_normal[index + 2] += xa*yb - xb*ya;
                     }
-                    if(j < STRIP_LENGTH-1){
-                        xa = pt_strip[p2] - pt_strip[index];
-                        ya = pt_strip[p2+1] - pt_strip[index+1];
-                        za = pt_strip[p2+2] - pt_strip[index+2];
-                        xb = pt_strip[p1] - pt_strip[index];
-                        yb = pt_strip[p1+1] - pt_strip[index+1];
-                        zb = pt_strip[p1+2] - pt_strip[index+2];
-                        pt_normal[index] += ya*zb-yb*za;
-                        pt_normal[index+1] += xb*za-xa*zb;
-                        pt_normal[index+2] += xa*yb-xb*ya;
+                    if (j < STRIP_LENGTH - 1)
+                    {
+                        xa = pt_strip[p2] - pt_strip[index], ya = pt_strip[p2 + 1] - pt_strip[index + 1], za = pt_strip[p2 + 2] - pt_strip[index + 2];
+                        xb = pt_strip[p1] - pt_strip[index], yb = pt_strip[p1 + 1] - pt_strip[index + 1], zb = pt_strip[p1 + 2] - pt_strip[index + 2];
+                        pt_normal[index] += ya*zb - yb*za;
+                        pt_normal[index + 1] += xb*za - xa*zb;
+                        pt_normal[index + 2] += xa*yb - xb*ya;
                     }
                 }
-                if(normalizeF(&pt_normal[index], &pt_normal[index], 3))
-                    printf("%d\t%d\n", index/3/STRIP_LENGTH, (index/3)%STRIP_LENGTH);
-                
                 index += 3;
             }
         }
         
-        //Calculate vertex_data[] according to pt_strip[], and normal_data[] according to pt_normal[]
         int pt;
-        for(int c=0; c<(STRIP_COUNT-1); c++)
+        for (int c = 0; c<(STRIP_COUNT - 1); c++)
         {
-            for(int l=0; l<2*STRIP_LENGTH; l++)
+            for (int l = 0; l<2 * STRIP_LENGTH; l++)
             {
-                if(l%2 == 1){
-                    pt = c*STRIP_LENGTH + l/2;
-                }else{
-                    pt = c*STRIP_LENGTH + l/2 + STRIP_LENGTH;
+                if (l % 2 == 1)
+                {
+                    pt = c*STRIP_LENGTH + l / 2;
                 }
-                index = STRIP_LENGTH*2*c+l;
-                for(int i=0; i<3; i++){
-                    vertex_data[index*3+i] = pt_strip[pt*3+i];
-                    normal_data[index*3+i] = pt_normal[pt*3+i];
+                else
+                {
+                    pt = c*STRIP_LENGTH + l / 2 + STRIP_LENGTH;
+                }
+                index = STRIP_LENGTH * 2 * c + l;
+                for (int i = 0; i<3; i++)
+                {
+                    VBOdata[index].vertex_data[i] = pt_strip[pt * 3 + i];
+                    VBOdata[index].normal_data[i] = pt_normal[pt * 3 + i];
+                    if (i == 0)
+                        VBOdata[index].texcoord_data[0] = (pt_strip[pt * 3 + i] + glfwGetTime() / 20.0) / 10.0;
+                    else if(i == 2)
+                        VBOdata[index].texcoord_data[1] = (pt_strip[pt * 3 + i] + glfwGetTime() / 20.0) / 10.0;
                 }
             }
         }
+        
+        for (int i = 2; i < DATA_LENGTH; i++)
+        {
+            tangentandbitangent(i);
+        }
+        
     }
     
-    GLuint initTexture(const char *filename)
-    {
-        int width, height;
-        void *pixels = read_tga(filename, &width, &height);
-        GLuint texture;
-        
-        if (!pixels)
-            return 0;
-        
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, pixels);
-        
-        free(pixels);
-        return texture;
-    }
 };
 
 #endif /* Water_h */

@@ -28,7 +28,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 15.0f;
+const float SPEED = 5.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -89,7 +89,7 @@ public:
 			Position -= Right * velocity;
 		else if (direction == RIGHT)
 			Position += Right * velocity;
-        else if (direction == DOWNWORD)
+        else if (direction == DOWNWORD && Position.y >= 2.f)
             Position -= Up * velocity;
         else if (direction == UPWORD)
             Position += Up * velocity;
@@ -116,9 +116,10 @@ public:
 		// Update Front, Right and Up Vectors using the updated Euler angles
 		updateCameraVectors();
         
-        glm::vec3 temp = Position + Front;
-        cout<<"Look at : eye="<<Position.x<<" "<<Position.y<<" "<<Position.z<<endl;
-        cout<<"          center="<<temp.x<<" "<<temp.y<<" "<<temp.z<<endl;
+//        glm::vec3 temp = Position + Front;
+//        cout<<"Look at : eye="<<Position.x<<" "<<Position.y<<" "<<Position.z<<endl;
+//        cout<<"          up="<<Up.x<<" "<<Up.y<<" "<<Up.z<<endl;
+//        cout<<Yaw<<"  "<<Pitch<<endl;
 	}
 
 	// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis

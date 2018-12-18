@@ -1,6 +1,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <vector>
 #include <algorithm>
@@ -38,9 +39,16 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
 // camera: initiliazed by start location
-//glm::vec3 initCenter();
+
+glm::vec3 upCenter(9.42f, 11.f, -8.22f);
+Camera upCamera(upCenter, glm::vec3(-0.35f, 0.88f, 0.34f), -224.8, -26.9);
+
+
 glm::vec3 sceneCenter(0.f, 0.f, 0.f);
-Camera camera(sceneCenter+glm::vec3(0.f, 0.f, 10.f));
+Camera *camera = &upCamera;
+Model *p_ship;
+
+Camera downCamera(sceneCenter+glm::vec3(0.f, 3.f, 15.f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -48,6 +56,15 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
+// ship noise
+float rotate_offset = 0.f;
+int rotate_dir = -1;
+float max_left = 5;
+
+float height_offset = 0.f;
+int height_dir = -1;
+float max_down = 0.2f;
 
 int main( void )
 {
@@ -120,7 +137,7 @@ int main( void )
     //======================
 
     Shader particleShader( "shader/particle.vs", "shader/particle.fs" );
-    glm::vec3 particleCenter(0.f, 3.f, 7.f);
+    glm::vec3 particleCenter(2.f, 3.f, 10.f);
     Particles waterfall(particleCenter, &particleShader);
 
 
@@ -130,26 +147,26 @@ int main( void )
 
     Shader modelShader( "shader/model.vs", "shader/model.fs" );
 
-    glm::vec3 mountainCenter(1.42f, 0.1f, 0.f);
-    glm::vec3 offset = sceneCenter - mountainCenter;
+//    glm::vec3 mountainCenter(1.42f, 0.1f, 0.f);
+//    glm::vec3 offset = sceneCenter - mountainCenter;
 
 
-    Model mountain("material/mountain.obj", &modelShader);
-    mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, offset);
-
-    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
+    Model mountain("material/mountain/plane-7.obj", &modelShader);
+    mountain.ModelMatrix = glm::scale(mountain.ModelMatrix, glm::vec3(1/70.f, 1/50.f, 1/70.f));
+    mountain.ModelMatrix = glm::translate(mountain.ModelMatrix, glm::vec3(0,0,0.f));
 
     //======================
     // prepare ship
     //======================
 
     Model ship("material/ship/ShipMoscow.obj", &modelShader);
+    p_ship = &ship;
     ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(0, 0, 8.f));
 
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
     ship.ModelMatrix = glm::rotate(ship.ModelMatrix, glm::radians(-40.f), glm::vec3(0,0,1));
     ship.ModelMatrix = glm::scale(ship.ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
-    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(50.f, 20.f, 5.f));
+    ship.ModelMatrix = glm::translate(ship.ModelMatrix, glm::vec3(50.f, 0.f, 17.4f));
 
     
     //======================
@@ -158,12 +175,38 @@ int main( void )
 
     Shader waterShader("shader/water.vs", "shader/water.fs");
     Water water(&waterShader);
-    water.ModelMatrix = glm::rotate(water.ModelMatrix, glm::radians(-90.f), glm::vec3(1,0,0));
-    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, -10.f, -1.3f));
-//    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(0, 0.f, -1.3f));
+    water.ModelMatrix = glm::scale(water.ModelMatrix, glm::vec3(2.f, 2.f, 2.f));
+    water.ModelMatrix = glm::rotate(water.ModelMatrix, glm::radians(90.f), glm::vec3(0,1,0));
+    water.ModelMatrix = glm::translate(water.ModelMatrix, glm::vec3(-10.f, 0.8f, -6.5f));
 
-    water.ModelMatrix = glm::scale(water.ModelMatrix, glm::vec3(10.f, 10.f, 10.f));
-
+    waterShader.use();
+    glm::vec3 lightPos(0.0f, -20.0f, 0.0f);
+    GLfloat materAmbient[] = { 0.1, 0.1, 0.3, 1.0 };
+    GLfloat materSpecular[] = { 0.8, 0.8, 0.9, 1.0 };
+    GLfloat lightDiffuse[] = { 0.7, 0.7, 0.8, 1.0 };
+    GLfloat lightAmbient[] = { 0.0, 0.0, 0.0, 1.0 };
+    GLfloat lightSpecular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat envirAmbient[] = { 0.1, 0.1, 0.3, 1.0 };
+    
+    waterShader.setVec3("lightPos", lightPos);
+    waterShader.setVec3("viewPos", camera->Position);
+    glUniform4fv(glGetUniformLocation(waterShader.ID, "materAmbient"), 1, materAmbient);
+    glUniform4fv(glGetUniformLocation(waterShader.ID, "materSpecular"), 1, materSpecular);
+    glUniform4fv(glGetUniformLocation(waterShader.ID, "lightDiffuse"), 1, lightDiffuse);
+    glUniform4fv(glGetUniformLocation(waterShader.ID, "lightAmbient"), 1, lightAmbient);
+    glUniform4fv(glGetUniformLocation(waterShader.ID, "lightSpecular"), 1, lightSpecular);
+    glUniform4fv(glGetUniformLocation(waterShader.ID, "envirAmbient"), 1, envirAmbient);
+    
+    
+//    if(fork() == 0)
+//    {
+//        while(1)
+//        {
+//            system("afplay material/waterfall.mp3 -v 5");
+//        }
+//        exit(0);
+//    }
+    
 
     while( !glfwWindowShouldClose(window))
     {
@@ -180,10 +223,9 @@ int main( void )
         processInput(window);
 
         // MVP matrix
-        glm::mat4 ModelMatrix = glm::mat4(1.0);
-        glm::mat4 ViewMatrix = camera.GetViewMatrix();
+        glm::mat4 ViewMatrix = camera->GetViewMatrix();
         glm::mat4 ProjectionMatrix = glm::perspective(
-              glm::radians(camera.Zoom),
+              glm::radians(camera->Zoom),
               (float)SCR_WIDTH / (float)SCR_HEIGHT,
               0.1f,
               100.0f
@@ -196,7 +238,6 @@ int main( void )
         //======================
         // water render
         //======================
-        
         
         water.UpdateWave(currentFrame);
         water.draw(ViewMatrix, ProjectionMatrix, currentFrame);
@@ -211,8 +252,10 @@ int main( void )
         // model render
         //======================
         
-//        mountain.draw(ViewProjectionMatrix);
+        mountain.draw(ViewProjectionMatrix);
         ship.draw(ViewProjectionMatrix);
+        
+
 
         //======================
         // particle render
@@ -249,30 +292,89 @@ int main( void )
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        if( camera == &downCamera )
+        {
+//            camera = &upCamera;
+        }
+        else
+        {
+            camera = &downCamera;
+        }
+    }
+    
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        camera->ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        camera->ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        camera->ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        camera->ProcessKeyboard(RIGHT, deltaTime);
     
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-        camera.ProcessKeyboard(UPWORD, deltaTime);
+        camera->ProcessKeyboard(UPWORD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-        camera.ProcessKeyboard(DOWNWORD, deltaTime);
+        camera->ProcessKeyboard(DOWNWORD, deltaTime);
+    
+    
+    glm::vec3 ship_front(1.f, 0, 0);
+    const float translate_v = 5.f;
+    const float turn_v = 0.2f;
+    const float rotate_v = 0.1f;
+    const float float_v = 0.005f;
 
-//    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-//        camera.ProcessKeyboard(MOVE_FORWARD, deltaTime);
-//    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-//        camera.ProcessKeyboard(MOVE_BACKWARD, deltaTime);
-//    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-//        camera.ProcessKeyboard(MOVE_LEFT, deltaTime);
-//    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-//        camera.ProcessKeyboard(MOVE_RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, deltaTime * (-translate_v) * ship_front);
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, deltaTime * translate_v * ship_front);
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        if(rotate_offset!=0)
+        {
+            p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, glm::radians(-rotate_offset), glm::vec3(1,0,0));
+            rotate_offset = 0;
+        }
+        p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, deltaTime * (-translate_v) * ship_front * 0.4f);
+        p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, turn_v * deltaTime, glm::vec3(0, 0, 1));
+    }
+    else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        if(rotate_offset!=0)
+        {
+            p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, glm::radians(-rotate_offset), glm::vec3(1,0,0));
+            rotate_offset = 0;
+        }
+        p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, deltaTime * (-translate_v) * ship_front * 0.4f);
+        p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, -turn_v * deltaTime, glm::vec3(0, 0, 1));
+    }
+    else
+    {
+        if((rotate_offset < -max_left && rotate_dir == -1) || (rotate_offset > max_left && rotate_dir == 1))
+        {
+            max_left = (rand()%1000/1000.f) * 8.f + 3.f;
+            rotate_dir = -rotate_dir;
+        }
+        
+        float single_rotate = (rand()%2+1) * rotate_dir * rotate_v;
+        rotate_offset += single_rotate;
+        p_ship->ModelMatrix = glm::rotate(p_ship->ModelMatrix, glm::radians(single_rotate), glm::vec3(1,0,0));
+        
+        
+        if((height_offset < -0.2) || (height_offset > 0.2))
+            height_dir = -height_dir;
+        
+        float single_translate = (rand()%2+1) * height_dir * float_v;
+        height_offset += single_translate;
+        p_ship->ModelMatrix = glm::translate(p_ship->ModelMatrix, glm::vec3(0,0,single_translate));
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -301,14 +403,14 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
     
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    camera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(yoffset);
+    camera->ProcessMouseScroll(yoffset);
 }
 
 
