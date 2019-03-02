@@ -28,25 +28,25 @@ assimp: Open **As**set **Imp**ort Library--导入模型文件的扩展库
 
    水平面视角
 
-![图片 2](./material/readme-pics/图片 2.png)
+![图片2](./material/readme-pics/图片2.png)
 
 
 
 ​	俯视视角
 
-![图片 1](./material/readme-pics/图片 1.png)
+![图片1](./material/readme-pics/图片1.png)
 
 
 
 ​	船内视角
 
-![图片 4](./material/readme-pics/图片 4.png)
+![图片4](./material/readme-pics/图片4.png)
 
 ​	
 
 ​	水面部分截取
 
-![图片 3](./material/readme-pics/图片 3.png)
+![图片3](./material/readme-pics/图片3.png)
 
 
 
