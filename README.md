@@ -28,25 +28,25 @@ assimp: Open **As**set **Imp**ort Library--导入模型文件的扩展库
 
    水平面视角
 
-![图片 2](/material/readme-pics/图片 2.png)
+![图片 2](/Users/simon/Desktop/backup/history/waterfall/waterfall-project/Waterfall-Rendering/material/readme-pics/图片 2.png)
 
 
 
 ​	俯视视角
 
-![图片 1](/material/readme-pics/图片 1.png)
+![图片 1](/Users/simon/Desktop/backup/history/waterfall/waterfall-project/Waterfall-Rendering/material/readme-pics/图片 1.png)
 
 
 
 ​	船内视角
 
-![图片 4](/material/readme-pics/图片 4.png)
+![图片 4](/Users/simon/Desktop/backup/history/waterfall/waterfall-project/Waterfall-Rendering/material/readme-pics/图片 4.png)
 
 ​	
 
 ​	水面部分截取
 
-![图片 3](/material/readme-pics/图片 3.png)
+![图片 3](/Users/simon/Desktop/backup/history/waterfall/waterfall-project/Waterfall-Rendering/material/readme-pics/图片 3.png)
 
 
 
